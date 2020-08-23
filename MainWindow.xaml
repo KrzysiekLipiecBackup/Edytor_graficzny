@@ -1,0 +1,42 @@
+﻿<Window x:Class="Edytor_graficzny.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        Title="Title_is_replaced" 
+        Height="450" Width="600" 
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource WindowBackgroundBrush}">
+
+    
+    <Window.Resources>
+        <sys:String x:Key="strHelloWorld">Hello, world!</sys:String>
+
+        <sys:String x:Key="strWindow">Hello, Window world!</sys:String>
+        <!--<sys:String x:Key="ComboBoxTitle">Items:</sys:String>-->
+
+        <x:Array x:Key="ComboBoxItems" Type="sys:String">
+            <sys:String>Item #1</sys:String>
+            <sys:String>Item #2</sys:String>
+            <sys:String>Item #3</sys:String>
+        </x:Array>
+
+        <LinearGradientBrush x:Key="WindowBackgroundBrush">
+            <GradientStop Offset="0" Color="Silver"/>
+            <GradientStop Offset="1" Color="Gray"/>
+        </LinearGradientBrush>
+    </Window.Resources>
+
+
+    <DockPanel Margin="10" Name="pnlMain">
+        <DockPanel.Resources>
+            <sys:String x:Key="strPanel">Hello, Panel world!</sys:String>
+        </DockPanel.Resources>
+
+        <WrapPanel DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="10">
+            <Button Name="btnClickMe" Click="btnClickMe_Click">Click me!</Button>
+            <Button Name="Crash_button" Click="Button_Click">CRASH</Button>
+        </WrapPanel>
+
+        <ListBox Name="lbResult" />
+    </DockPanel>
+</Window>
