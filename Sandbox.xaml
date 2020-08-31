@@ -1,0 +1,146 @@
+﻿<Window x:Class="Edytor_graficzny.Sandbox"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Edytor_graficzny"
+        mc:Ignorable="d"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        Title="Sandbox" 
+        Height="600" Width="800"
+        Background="{DynamicResource WindowBackgroundBrush}">
+
+
+    <Window.Resources>
+        <sys:String x:Key="strHelloWorld">Hello, world!</sys:String>
+
+        <sys:String x:Key="strWindow">Hello, Window world!</sys:String>
+        <!--<sys:String x:Key="ComboBoxTitle">Items:</sys:String>-->
+
+        <x:Array x:Key="ComboBoxItems" Type="sys:String">
+            <sys:String>Item #1</sys:String>
+            <sys:String>Item #2</sys:String>
+            <sys:String>Item #3</sys:String>
+        </x:Array>
+
+        <LinearGradientBrush x:Key="WindowBackgroundBrush">
+            <GradientStop Offset="0" Color="Silver"/>
+            <GradientStop Offset="1" Color="Gray"/>
+        </LinearGradientBrush>
+
+        <Style TargetType="{x:Type Button}">
+            <Setter Property="Padding" Value="5,2"/>
+        </Style>
+    </Window.Resources>
+
+
+    <DockPanel Margin="10" Name="pnlMain">
+        <DockPanel.Resources>
+            <sys:String x:Key="strPanel">Hello, Panel world!</sys:String>
+        </DockPanel.Resources>
+
+        <StackPanel DockPanel.Dock="Top" Margin="10">
+            <Button Padding="5,2" Width="100" HorizontalAlignment="Left" x:Name="btnMainWindow" Content="MainWindow" Click="btnMainWindow_Click"></Button>
+        </StackPanel>
+
+        <ListBox DockPanel.Dock="Bottom" Height="150" Name="lbResult" SelectionChanged="lbResult_SelectionChanged" />
+
+        <WrapPanel Margin="10">
+
+            <Button Padding="5,2">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/Res/Images/watermark.ico" Height="15" Width="15" />
+                    <TextBlock Margin="5,0">Help</TextBlock>
+                </StackPanel>
+            </Button>
+            <Button Name="btnClickMe" Click="btnClickMe_Click">Click me!</Button>
+            <Button Name="Crash_button" Click="Button_Click">CRASH</Button>
+
+            <TextBlock Margin="10" Foreground="Red">
+			This is a TextBlock control<LineBreak />
+			with multiple lines of text.
+            </TextBlock>
+            <TextBlock Margin="10" TextTrimming="WordEllipsis" Foreground="Green">
+			This is a TextBlock control with text that may not be rendered completely, which will be indicated with an ellipsis.
+            </TextBlock>
+            <TextBlock Margin="10" TextWrapping="Wrap" Foreground="Blue">
+			This is a TextBlock control with automatically wrapped text, using the TextWrapping property.
+            </TextBlock>
+            <TextBlock Margin="10" TextWrapping="Wrap">
+			This text has a <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://www.google.com">link</Hyperlink> in it.
+            </TextBlock>
+            <TextBlock Margin="10" TextWrapping="Wrap">
+			TextBlock with <Bold>bold</Bold>, <Italic>italic</Italic> and <Underline>underlined</Underline> text.
+            </TextBlock>
+            <TextBlock Margin="10" TextWrapping="Wrap">
+			    This <Span FontWeight="Bold">is</Span> a
+			    <Span Background="Silver" Foreground="Maroon">TextBlock</Span>
+			    with <Span TextDecorations="Underline">several</Span>
+			    <Span FontStyle="Italic">Span</Span> elements,
+			    <Span Foreground="Blue">
+				    using a <Bold>variety</Bold> of <Italic>styles</Italic>
+			    </Span>.
+            </TextBlock>
+
+            <StackPanel Margin="10">
+                <Label Content="This is a Label control. Press Alt, then N/M" />
+                <Label Target="{Binding ElementName=txtName}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="http://cdn1.iconfinder.com/data/icons/fatcow/16/bullet_green.png" />
+                        <AccessText Text="_Name:" />
+                    </StackPanel>
+                </Label>
+                <TextBox Name="txtName" Text="Hello, world!" />
+                <Label Target="{Binding ElementName=txtMail}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="http://cdn1.iconfinder.com/data/icons/fatcow/16/bullet_blue.png" />
+                        <AccessText Text="_Mail:" />
+                    </StackPanel>
+                </Label>
+                <TextBox AcceptsReturn="True" TextWrapping="Wrap" SpellCheck.IsEnabled="True" Language="pl-PL" Name="txtMail" />
+
+                <TextBox SelectionChanged="TextBox_SelectionChanged" DockPanel.Dock="Top" />
+                <TextBox Name="txtStatus" AcceptsReturn="True" TextWrapping="Wrap" IsReadOnly="True" />
+            </StackPanel>
+
+            <StackPanel Margin="10">
+                <Label FontWeight="Bold">Application Options</Label>
+                <StackPanel Margin="10,5">
+                    <CheckBox IsThreeState="True" Name="cbAllFeatures" Checked="cbAllFeatures_CheckedChanged" Unchecked="cbAllFeatures_CheckedChanged">Enable all</CheckBox>
+                    <StackPanel Margin="20,5">
+                        <CheckBox Name="cbFeatureAbc" Checked="cbFeature_CheckedChanged" Unchecked="cbFeature_CheckedChanged">Enable feature ABC</CheckBox>
+                        <CheckBox Name="cbFeatureXyz" IsChecked="True" Checked="cbFeature_CheckedChanged" Unchecked="cbFeature_CheckedChanged">Enable feature XYZ</CheckBox>
+                        <CheckBox Name="cbFeatureWww" Checked="cbFeature_CheckedChanged" Unchecked="cbFeature_CheckedChanged">Enable feature WWW</CheckBox>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel Margin="10">
+                <Label FontWeight="Bold">Are you ready?</Label>
+                <RadioButton GroupName="ready">Yes</RadioButton>
+                <RadioButton GroupName="ready">No</RadioButton>
+                <RadioButton GroupName="ready" IsChecked="True">Maybe</RadioButton>
+
+                <Label FontWeight="Bold">Male or female?</Label>
+                <RadioButton GroupName="sex">Male</RadioButton>
+                <RadioButton GroupName="sex">Female</RadioButton>
+                <RadioButton GroupName="sex" IsChecked="True">
+                    <WrapPanel>
+                        <Image Source="/Res/Images/watermark.ico" Width="16" Height="16" Margin="0,0,5,0" />
+                        <TextBlock Text="Not sure" Foreground="DarkCyan" />
+                    </WrapPanel>
+                </RadioButton>
+            </StackPanel>
+            <StackPanel Margin="10">
+                <Label>Text:</Label>
+                <TextBox />
+                <Label>Password:</Label>
+                <PasswordBox PasswordChar="X" MaxLength="6"/>
+                <Button Name="btnLoadFromFile" Margin="0,0,20,0" Click="BtnLoadFromFile_Click">Load from File...</Button>
+                <Button Name="btnLoadFromResource" Click="BtnLoadFromResource_Click">Load from Resource</Button>
+                <Image Name="imgDynamic" Width="100" Height="50" />
+            </StackPanel>
+
+        </WrapPanel>
+
+    </DockPanel>
+</Window>

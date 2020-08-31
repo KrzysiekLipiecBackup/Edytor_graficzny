@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows;
-
-
 namespace Edytor_graficzny
 {
     /// <summary>
@@ -27,5 +25,6 @@ namespace Edytor_graficzny
 			MessageBox.Show("An unhandled exception just occurred: " + e.Exception.Message, "Exception Sample", MessageBoxButton.OK, MessageBoxImage.Warning);
 			e.Handled = true;
 		}
+
 	}
 }
