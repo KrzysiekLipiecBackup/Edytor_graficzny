@@ -49,10 +49,12 @@
                 <MenuItem Header="_Exit" />
             </MenuItem>
             <MenuItem Header="_Sandbox" Click="MenuItem_Sandbox_Click"></MenuItem>
+            <MenuItem Header="_Undo" Click="MenuItem_Undo_Click"></MenuItem>
             <MenuItem Header="_NewTestLine" Click="MenuItem_btnNewLineTest_Click"></MenuItem>
         </Menu>
 
         <StackPanel DockPanel.Dock="Left" Margin="5">
+            <Button Name="btnPen" Content="Pen" Click="btnPen_Click"></Button>
             <Button Name="btnLine" Content="Line" Click="btnLine_Click"></Button>
             <Button Name="btnEllipse" Content="Ellipse" Click="btnEllipse_Click" ></Button>
         </StackPanel>
@@ -65,7 +67,7 @@
                 Name="DrawBoard" 
                 Background="#FFE6E6E6"
                 MouseLeftButtonDown="DrawBoard_MouseLeftButtonDown"
-                MouseLeftButtonUp="DrawBoard_MouseLeftButtonUp">
+                MouseMove="DrawBoard_MouseMove">
         </Canvas>
         
     </DockPanel>
