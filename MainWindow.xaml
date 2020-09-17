@@ -42,13 +42,13 @@
 
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_File">
-                <MenuItem Header="_New" />
-                <MenuItem Header="_Open" />
-                <MenuItem Header="_Save" />
+                <MenuItem Header="_New" Click="MenuItem_File_NewClick"/>
+                <MenuItem Header="_Open" Click="MenuItem_File_OpenClick" />
+                <MenuItem Header="_Save" Click="MenuItem_File_SaveClick" />
                 <Separator />
                 <MenuItem Header="_Exit" />
             </MenuItem>
-            <MenuItem Header="_Sandbox" Click="MenuItem_Sandbox_Click"></MenuItem>
+            <MenuItem Header="Sandbox" Click="MenuItem_Sandbox_Click"></MenuItem>
             <MenuItem Header="_Undo" Click="MenuItem_Undo_Click"></MenuItem>
             <MenuItem Header="_NewTestLine" Click="MenuItem_btnNewLineTest_Click"></MenuItem>
         </Menu>

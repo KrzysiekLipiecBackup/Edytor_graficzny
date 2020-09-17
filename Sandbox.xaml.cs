@@ -52,6 +52,19 @@ namespace Edytor_graficzny
 			}
 			s.Trim();
 		}
+
+		private void ReadFile_Click(object sender, RoutedEventArgs e)
+		{
+			using (StreamReader sr = File.OpenText(@"D:\Programowanie\Visual Studio C# WPF\Edytor graficzny\Res\Text\StartText.txt"))
+            {
+				string s = "";
+				while ((s = sr.ReadLine()) != null)
+				{
+					lbResult.Items.Add(s);
+				}
+			}
+		}
+
 		private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
 		{
 			System.Diagnostics.Process.Start(e.Uri.AbsoluteUri);
@@ -112,5 +125,7 @@ namespace Edytor_graficzny
         {
 
         }
+
+
     }
 }

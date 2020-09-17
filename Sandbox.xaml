@@ -43,7 +43,7 @@
             <Button Padding="5,2" Width="100" HorizontalAlignment="Left" x:Name="btnMainWindow" Content="MainWindow" Click="btnMainWindow_Click"></Button>
         </StackPanel>
 
-        <ListBox DockPanel.Dock="Bottom" Height="150" Name="lbResult" SelectionChanged="lbResult_SelectionChanged" />
+        <ListBox DockPanel.Dock="Bottom" Height="300" Name="lbResult" SelectionChanged="lbResult_SelectionChanged" />
 
         <WrapPanel Margin="10">
 
@@ -55,6 +55,7 @@
             </Button>
             <Button Name="btnClickMe" Click="btnClickMe_Click">Click me!</Button>
             <Button Name="Crash_button" Click="Button_Click">CRASH</Button>
+            <Button Name="ReadFile" Click="ReadFile_Click">Read File</Button>
 
             <TextBlock Margin="10" Foreground="Red">
 			This is a TextBlock control<LineBreak />

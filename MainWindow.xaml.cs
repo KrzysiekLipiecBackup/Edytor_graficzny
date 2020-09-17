@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+
 //…more using statements
 
 
@@ -17,22 +18,40 @@ namespace Edytor_graficzny
     public partial class MainWindow : Window
     {
         private int iter = 0;
-        private Point pnt_start;
-        private Point pnt_end;
-        private Byte color_red;
-        private Byte color_green;
-        private Byte color_blue;
-        private string draw_type = "line";
-        private string draw_state = "OFF";   // First_ON, ON, First_OFF, OFF
-        private Random rnd = new Random();
+        private Point pntStart;
+        private Point pntEnd;
+        private Byte colorRed;
+        private Byte colorGreen;
+        private Byte colorBlue;
+        private string drawType = "line";
+        private string drawState = "OFF";   // First_ON, ON, First_OFF, OFF
+        private Random randomNumber = new Random();
+        private Src.FileHandling fileHandling = new Src.FileHandling();
 
 
         public MainWindow()
         {
             InitializeComponent();
-            currentTool.Text = "Current tool: " + draw_type;
+            currentTool.Text = "Current tool: " + drawType;
+            btnPen.IsEnabled = true;
+            btnLine.IsEnabled = false;
+            btnEllipse.IsEnabled = true;
         }
 
+        private void MenuItem_File_NewClick(object sender, RoutedEventArgs e)
+        {
+            fileHandling.NewFile();
+        }
+
+        private void MenuItem_File_OpenClick(object sender, RoutedEventArgs e)
+        {
+            fileHandling.OpenFile();
+        }
+
+        private void MenuItem_File_SaveClick(object sender, RoutedEventArgs e)
+        {
+            fileHandling.SaveFile();
+        }
         private void MenuItem_Sandbox_Click(object sender, RoutedEventArgs e)
         {
             Sandbox s = new Sandbox();
@@ -63,46 +82,55 @@ namespace Edytor_graficzny
 
         private void DrawBoard_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            pnt_start = e.GetPosition(DrawBoard);
+            pntStart = e.GetPosition(DrawBoard);
 
-            color_red = Convert.ToByte(rnd.Next(50, 255));
-            color_blue = Convert.ToByte(rnd.Next(50, 255));
-            color_green = Convert.ToByte(rnd.Next(50, 255));
+            colorRed = Convert.ToByte(randomNumber.Next(50, 255));
+            colorBlue = Convert.ToByte(randomNumber.Next(50, 255));
+            colorGreen = Convert.ToByte(randomNumber.Next(50, 255));
 
-            if (draw_state == "First_OFF" || draw_state == "OFF") draw_state = "First_ON";
+            if (drawState == "First_OFF" || drawState == "OFF") drawState = "First_ON";
         }
 
         private void DrawBoard_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
             if (e.LeftButton != MouseButtonState.Pressed)
             {
-                if (draw_state == "First_ON" || draw_state == "ON") draw_state = "First_OFF";
+                if (drawState == "First_ON" || drawState == "ON") drawState = "First_OFF";
             }
-            pnt_end = e.GetPosition(DrawBoard);
+            pntEnd = e.GetPosition(DrawBoard);
             Drawnado();
         }
 
         private void btnPen_Click(object sender, RoutedEventArgs e)
         {
-            draw_type = "pen";
-            currentTool.Text = "Current tool: " + draw_type;
+            btnPen.IsEnabled = false;
+            btnLine.IsEnabled = true;
+            btnEllipse.IsEnabled = true;
+            drawType = "pen";
+            currentTool.Text = "Current tool: " + drawType;
         }
 
         private void btnLine_Click(object sender, RoutedEventArgs e)
         {
-            draw_type = "line";
-            currentTool.Text = "Current tool: " + draw_type;
+            btnPen.IsEnabled = true;
+            btnLine.IsEnabled = false;
+            btnEllipse.IsEnabled = true;
+            drawType = "line";
+            currentTool.Text = "Current tool: " + drawType;
         }
 
         private void btnEllipse_Click(object sender, RoutedEventArgs e)
         {
-            draw_type = "ellipse";
-            currentTool.Text = "Current tool: " + draw_type;
+            btnPen.IsEnabled = true;
+            btnLine.IsEnabled = true;
+            btnEllipse.IsEnabled = false;
+            drawType = "ellipse";
+            currentTool.Text = "Current tool: " + drawType;
         }
 
         private void Drawnado()
         {
-            switch (draw_type)
+            switch (drawType)
             {
                 case "pen":
                     Draw_Pen();
@@ -127,55 +155,60 @@ namespace Edytor_graficzny
         }
         private void Draw_Line()
         {
-            if (draw_state != "OFF")    //draw_state First_Off
+            if (drawState != "OFF")    //draw_state First_Off
             {
-                if (draw_state == "ON" || draw_state == "First_OFF")
+                if (drawState == "ON" || drawState == "First_OFF")
                 {
-                    DrawBoard.Children.RemoveAt(DrawBoard.Children.Count - 1);
+                    if (DrawBoard.Children.Count != 0)
+                    {
+                        DrawBoard.Children.RemoveAt(DrawBoard.Children.Count - 1);
+                    }
                 }
 
                 Line myLine = new Line();
                 myLine.Stroke = Brushes.SteelBlue;
-                myLine.X1 = pnt_start.X;
-                myLine.X2 = pnt_end.X;
-                myLine.Y1 = pnt_start.Y;
-                myLine.Y2 = pnt_end.Y;
+                myLine.X1 = pntStart.X;
+                myLine.X2 = pntEnd.X;
+                myLine.Y1 = pntStart.Y;
+                myLine.Y2 = pntEnd.Y;
                 myLine.StrokeThickness = 5;
 
                 DrawBoard.Children.Add(myLine);
 
-                if (draw_state == "First_ON") draw_state = "ON";
-                else if(draw_state == "First_OFF") draw_state = "OFF";
+                if (drawState == "First_ON") drawState = "ON";
+                else if(drawState == "First_OFF") drawState = "OFF";
             }
          }
 
         private void Draw_Ellipse()
         {
-            if (draw_state != "OFF")
+            if (drawState != "OFF")
             {
-                if (draw_state == "ON" || draw_state == "First_OFF")
+                if (drawState == "ON" || drawState == "First_OFF")
                 {
                     DrawBoard.Children.RemoveAt(DrawBoard.Children.Count - 1);
                 }
 
                 Ellipse myEllipse = new Ellipse();
                 SolidColorBrush mySolidColorBrush = new SolidColorBrush();
-                mySolidColorBrush.Color = Color.FromArgb(color_red, color_blue, color_green, 0);
+                mySolidColorBrush.Color = Color.FromArgb(colorRed, colorBlue, colorGreen, 0);
                 myEllipse.Fill = mySolidColorBrush;
                 myEllipse.StrokeThickness = 2;
                 myEllipse.Stroke = Brushes.Black;
-                myEllipse.Width = Math.Abs(pnt_start.X - pnt_end.X);
-                myEllipse.Height = Math.Abs(pnt_start.Y - pnt_end.Y);
+                myEllipse.Width = Math.Abs(pntStart.X - pntEnd.X);
+                myEllipse.Height = Math.Abs(pntStart.Y - pntEnd.Y);
 
                 DrawBoard.Children.Add(myEllipse);
                 
-                Canvas.SetLeft(myEllipse, (pnt_start.X < pnt_end.X) ? pnt_start.X : pnt_end.X);
-                Canvas.SetTop(myEllipse, (pnt_start.Y < pnt_end.Y) ? pnt_start.Y : pnt_end.Y);
+                Canvas.SetLeft(myEllipse, (pntStart.X < pntEnd.X) ? pntStart.X : pntEnd.X);
+                Canvas.SetTop(myEllipse, (pntStart.Y < pntEnd.Y) ? pntStart.Y : pntEnd.Y);
 
-                if (draw_state == "First_ON") draw_state = "ON";
-                else if(draw_state == "First_OFF") draw_state = "OFF";
+                if (drawState == "First_ON") drawState = "ON";
+                else if(drawState == "First_OFF") drawState = "OFF";
             }
         }
+
+
     }
 
 
