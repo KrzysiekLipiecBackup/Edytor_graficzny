@@ -12,9 +12,6 @@ using System.Windows.Shapes;
 
 namespace Edytor_graficzny
 {
-    /// <summary>
-    /// Interaction logic for Window1.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         private int iter = 0;
@@ -25,8 +22,8 @@ namespace Edytor_graficzny
         private Byte colorBlue;
         private string drawType = "line";
         private string drawState = "OFF";   // First_ON, ON, First_OFF, OFF
-        private Random randomNumber = new Random();
-        private Src.FileHandling fileHandling = new Src.FileHandling();
+        private readonly Random randomNumber = new Random();
+        private readonly Src.FileHandling fileHandling = new Src.FileHandling();
 
 
         public MainWindow()
@@ -103,59 +100,38 @@ namespace Edytor_graficzny
 
         private void btnPen_Click(object sender, RoutedEventArgs e)
         {
+            EnableAllButtons();
             btnPen.IsEnabled = false;
-            btnLine.IsEnabled = true;
-            btnEllipse.IsEnabled = true;
             drawType = "pen";
             currentTool.Text = "Current tool: " + drawType;
         }
 
         private void btnLine_Click(object sender, RoutedEventArgs e)
         {
-            btnPen.IsEnabled = true;
+            EnableAllButtons();
             btnLine.IsEnabled = false;
-            btnEllipse.IsEnabled = true;
             drawType = "line";
             currentTool.Text = "Current tool: " + drawType;
         }
 
         private void btnEllipse_Click(object sender, RoutedEventArgs e)
         {
-            btnPen.IsEnabled = true;
-            btnLine.IsEnabled = true;
+            EnableAllButtons();
             btnEllipse.IsEnabled = false;
             drawType = "ellipse";
             currentTool.Text = "Current tool: " + drawType;
         }
 
+        private void EnableAllButtons()
+        {
+            btnPen.IsEnabled = true;
+            btnLine.IsEnabled = true;
+            btnEllipse.IsEnabled = true;
+        }
+
         private void Drawnado()
         {
-            switch (drawType)
-            {
-                case "pen":
-                    Draw_Pen();
-                    break;
-                case "line":
-                    Draw_Line();
-                    break;
-                case "ellipse":
-                    Draw_Ellipse();
-                    break;
-                default:
-                    Console.WriteLine("!!!Used Default draw_type (Pen)");
-                    Draw_Pen();
-                    break;
-            }
-            currentTool.Text = Convert.ToString(DrawBoard.Children.Count);
-        }
-
-        private void Draw_Pen()
-        {
-
-        }
-        private void Draw_Line()
-        {
-            if (drawState != "OFF")    //draw_state First_Off
+            if (drawState != "OFF")
             {
                 if (drawState == "ON" || drawState == "First_OFF")
                 {
@@ -165,51 +141,45 @@ namespace Edytor_graficzny
                     }
                 }
 
-                Line myLine = new Line();
-                myLine.Stroke = Brushes.SteelBlue;
-                myLine.X1 = pntStart.X;
-                myLine.X2 = pntEnd.X;
-                myLine.Y1 = pntStart.Y;
-                myLine.Y2 = pntEnd.Y;
-                myLine.StrokeThickness = 5;
-
-                DrawBoard.Children.Add(myLine);
-
-                if (drawState == "First_ON") drawState = "ON";
-                else if(drawState == "First_OFF") drawState = "OFF";
-            }
-         }
-
-        private void Draw_Ellipse()
-        {
-            if (drawState != "OFF")
-            {
-                if (drawState == "ON" || drawState == "First_OFF")
+                switch (drawType)
                 {
-                    DrawBoard.Children.RemoveAt(DrawBoard.Children.Count - 1);
+                    case "pen":
+                        break;
+                    case "line":
+                        Line myLine = new Line();
+                        myLine.Stroke = Brushes.SteelBlue;
+                        myLine.X1 = pntStart.X;
+                        myLine.X2 = pntEnd.X;
+                        myLine.Y1 = pntStart.Y;
+                        myLine.Y2 = pntEnd.Y;
+                        myLine.StrokeThickness = 5;
+
+                        DrawBoard.Children.Add(myLine);
+                        break;
+                    case "ellipse":
+                        Ellipse myEllipse = new Ellipse();
+                        SolidColorBrush mySolidColorBrush = new SolidColorBrush();
+                        mySolidColorBrush.Color = Color.FromArgb(colorRed, colorBlue, colorGreen, 0);
+                        myEllipse.Fill = mySolidColorBrush;
+                        myEllipse.StrokeThickness = 2;
+                        myEllipse.Stroke = Brushes.Black;
+                        myEllipse.Width = Math.Abs(pntStart.X - pntEnd.X);
+                        myEllipse.Height = Math.Abs(pntStart.Y - pntEnd.Y);
+
+                        DrawBoard.Children.Add(myEllipse);
+
+                        Canvas.SetLeft(myEllipse, (pntStart.X < pntEnd.X) ? pntStart.X : pntEnd.X);
+                        Canvas.SetTop(myEllipse, (pntStart.Y < pntEnd.Y) ? pntStart.Y : pntEnd.Y);
+                        break;
+                    default:
+                        Console.WriteLine("TODO - add error message");
+                        break;
                 }
 
-                Ellipse myEllipse = new Ellipse();
-                SolidColorBrush mySolidColorBrush = new SolidColorBrush();
-                mySolidColorBrush.Color = Color.FromArgb(colorRed, colorBlue, colorGreen, 0);
-                myEllipse.Fill = mySolidColorBrush;
-                myEllipse.StrokeThickness = 2;
-                myEllipse.Stroke = Brushes.Black;
-                myEllipse.Width = Math.Abs(pntStart.X - pntEnd.X);
-                myEllipse.Height = Math.Abs(pntStart.Y - pntEnd.Y);
-
-                DrawBoard.Children.Add(myEllipse);
-                
-                Canvas.SetLeft(myEllipse, (pntStart.X < pntEnd.X) ? pntStart.X : pntEnd.X);
-                Canvas.SetTop(myEllipse, (pntStart.Y < pntEnd.Y) ? pntStart.Y : pntEnd.Y);
-
                 if (drawState == "First_ON") drawState = "ON";
-                else if(drawState == "First_OFF") drawState = "OFF";
+                else if (drawState == "First_OFF") drawState = "OFF";
+                currentTool.Text = Convert.ToString(DrawBoard.Children.Count);
             }
         }
-
-
     }
-
-
 }
