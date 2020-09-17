@@ -1,0 +1,12 @@
+﻿\documentclass{article}
+\usepackage{tikz}
+\title{Cartesian closed categories and the price of eggs}
+\author{Jane Doe}
+\date{September 1994}
+\begin{document}
+   \maketitle
+   Hello world!
+\begin{tikzpicture}
+\draw (2,2) ellipse (3cm and 1cm);
+\end{tikzpicture}
+\end{document}

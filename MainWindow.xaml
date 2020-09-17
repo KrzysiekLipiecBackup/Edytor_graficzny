@@ -1,13 +1,17 @@
 ﻿<Window x:Class="Edytor_graficzny.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Edytor_graficzny"
+        mc:Ignorable="d"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         Title="Title_is_replaced" 
-        Height="450" Width="600" 
+        Height="600" Width="800"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource WindowBackgroundBrush}">
 
-    
+
     <Window.Resources>
         <sys:String x:Key="strHelloWorld">Hello, world!</sys:String>
 
@@ -24,19 +28,47 @@
             <GradientStop Offset="0" Color="Silver"/>
             <GradientStop Offset="1" Color="Gray"/>
         </LinearGradientBrush>
+
+        <Style TargetType="{x:Type Button}">
+            <Setter Property="Padding" Value="5,2"/>
+        </Style>
     </Window.Resources>
 
 
-    <DockPanel Margin="10" Name="pnlMain">
+    <DockPanel Name="pnlMain">
         <DockPanel.Resources>
             <sys:String x:Key="strPanel">Hello, Panel world!</sys:String>
         </DockPanel.Resources>
 
-        <WrapPanel DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="10">
-            <Button Name="btnClickMe" Click="btnClickMe_Click">Click me!</Button>
-            <Button Name="Crash_button" Click="Button_Click">CRASH</Button>
-        </WrapPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New" Click="MenuItem_File_NewClick"/>
+                <MenuItem Header="_Open" Click="MenuItem_File_OpenClick" />
+                <MenuItem Header="_Save" Click="MenuItem_File_SaveClick" />
+                <Separator />
+                <MenuItem Header="_Exit" />
+            </MenuItem>
+            <MenuItem Header="Sandbox" Click="MenuItem_Sandbox_Click"></MenuItem>
+            <MenuItem Header="_Undo" Click="MenuItem_Undo_Click"></MenuItem>
+            <MenuItem Header="_NewTestLine" Click="MenuItem_btnNewLineTest_Click"></MenuItem>
+        </Menu>
 
-        <ListBox Name="lbResult" />
+        <StackPanel DockPanel.Dock="Left" Margin="5">
+            <Button Name="btnPen" Content="Pen" Click="btnPen_Click"></Button>
+            <Button Name="btnLine" Content="Line" Click="btnLine_Click"></Button>
+            <Button Name="btnEllipse" Content="Ellipse" Click="btnEllipse_Click" ></Button>
+        </StackPanel>
+
+        <StatusBar DockPanel.Dock="Bottom" Margin="5">
+            <TextBlock Name="currentTool"></TextBlock>
+        </StatusBar>
+        
+        <Canvas Margin="5" 
+                Name="DrawBoard" 
+                Background="#FFE6E6E6"
+                MouseLeftButtonDown="DrawBoard_MouseLeftButtonDown"
+                MouseMove="DrawBoard_MouseMove">
+        </Canvas>
+        
     </DockPanel>
 </Window>
