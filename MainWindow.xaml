@@ -67,7 +67,9 @@
                 Name="DrawBoard" 
                 Background="#FFE6E6E6"
                 MouseLeftButtonDown="DrawBoard_MouseLeftButtonDown"
-                MouseMove="DrawBoard_MouseMove">
+                MouseMove="DrawBoard_MouseMove"
+                ClipToBounds="True">
+                <!--Width="726"-->
         </Canvas>
         
     </DockPanel>

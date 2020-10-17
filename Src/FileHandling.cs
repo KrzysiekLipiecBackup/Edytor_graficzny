@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Windows.Shapes;
+using Edytor_graficzny.Models;
 using Microsoft.Win32;
 
 namespace Edytor_graficzny.Src
@@ -62,26 +66,83 @@ namespace Edytor_graficzny.Src
                 Console.WriteLine(Ex.ToString());
             }
         }
-        public void OpenFile()
+        public void OpenFile(List<GraphicElementModel> graphicElementsModel)
         {
             string[] test = File.ReadAllLines(tempTemplate);
+            List<string> elementsFromOpenedFile = new List<string>();
+            bool isElement = false;
             foreach (var _string in test)
             {
-                System.Diagnostics.Debug.WriteLine(_string);
+                if (_string == "\\end{tikzpicture}") isElement = false;
+                if (isElement)
+                {
+                    elementsFromOpenedFile.Add(_string);
+                    if (_string.Contains("\\draw"))
+                    {
+                        int size = 0;
+                        if (graphicElementsModel != null)
+                        {
+                            size = graphicElementsModel.Count;
+                        }
+                        GraphicElementModel gem = new GraphicElementModel(size);
+
+                        //TODO: inne typy
+                        if (_string.Contains("ellipse"))
+                        {
+                            gem.name = "ellipse";
+
+                            string table = "";
+                            double numbe = 0;
+                            List<double> numbersFromOneLine = new List<double>();
+                            for (int i = 0; i < _string.Length; i++)
+                            {
+                                if (char.IsDigit(_string[i]) || _string[i] == '.')
+                                {
+                                    table += _string[i];
+                                    if (!char.IsDigit(_string[i+1]) && _string[i+1] != '.')
+                                    {
+                                        //bool isParsable = Int32.TryParse(table, out numbe);
+                                        bool isParsable = double.TryParse(table, NumberStyles.Any, NumberFormatInfo.InvariantInfo, out numbe);
+                                        if (!isParsable)
+                                        {
+                                            Console.WriteLine("Could not be parsed.");
+                                        }
+                                        numbersFromOneLine.Add(numbe);
+                                        table = "";
+                                    }
+                                }
+                            }
+                            gem.startX = numbersFromOneLine[0];
+                            gem.startY = numbersFromOneLine[1];
+                            gem.width = numbersFromOneLine[2];
+                            gem.height = numbersFromOneLine[3];
+                            graphicElementsModel.Add(gem);
+                        }
+                    }
+                }
+                if(_string == "\\begin{tikzpicture}") isElement = true;
             }
+
+            foreach (var _string in elementsFromOpenedFile)
+            {
+                System.Diagnostics.Debug.Write(_string);
+                System.Diagnostics.Debug.Write("\n");
+            }
+
+            //OpenFileDialog openFileDialog = new OpenFileDialog();
+            //if (openFileDialog.ShowDialog() == true)
+            //    MainWindow.currentTool.Text = File.ReadAllText(openFileDialog.FileName);
         }
         
         public void SaveFile()
         {
-            
-            
+
+            List<string> fullTextList = new List<string>();
             string[] startText = new string[] {"\\documentclass{article}", "\\usepackage{tikz}", "\\begin{document}", "\\begin{tikzpicture}"};
             string[] endText = new string[] {"\\end{tikzpicture}", "\\end{document}"};
-            List<string> fullTextList = new List<string>();
+            
             fullTextList.AddRange(startText);
-
             fullTextList.Add("\\draw (2,2) ellipse (7 and 5);");
-
             fullTextList.AddRange(endText);
 
 

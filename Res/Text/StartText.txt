@@ -7,6 +7,15 @@
    \maketitle
    Hello world!
 \begin{tikzpicture}
-\draw (2,2) ellipse (3cm and 1cm);
+
+\draw (11, 7) ellipse  (1 and 1);
+
+\draw (0, 1) ellipse (0.01 and 1);
+\draw (1, 0) ellipse (1 and 0.01);
+\draw (0, 0) ellipse (0.1 and 0.1);
+\draw (0, 1) ellipse (0.01 and 1);
+
+\draw (1, 1) ellipse  (1 and 1);
+
 \end{tikzpicture}
 \end{document}

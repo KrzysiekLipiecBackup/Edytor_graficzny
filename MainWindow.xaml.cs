@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Edytor_graficzny.Models;
+using Edytor_graficzny.Src;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -14,6 +17,7 @@ namespace Edytor_graficzny
 {
     public partial class MainWindow : Window
     {
+        private List<GraphicElementModel> gems = new List<GraphicElementModel>();
         private int iter = 0;
         private Point pntStart;
         private Point pntEnd;
@@ -42,7 +46,42 @@ namespace Edytor_graficzny
 
         private void MenuItem_File_OpenClick(object sender, RoutedEventArgs e)
         {
-            fileHandling.OpenFile();
+            gems.Clear();
+            DrawBoard.Children.Clear();
+            fileHandling.OpenFile(gems);
+            double sizeOfElementsX = 0;
+            double sizeOfElementsY = 0;
+            double scale = 0f;
+            foreach (var gem in gems)
+            {
+                if (gem.startX + gem.width > sizeOfElementsX)
+                {
+                    sizeOfElementsX = gem.startX + gem.width;
+                }
+                if (gem.startY + gem.height > sizeOfElementsY)
+                {
+                    sizeOfElementsY = gem.startY + gem.height;
+                }
+            }
+            scale = (DrawBoard.ActualWidth / sizeOfElementsX);
+            if ((DrawBoard.ActualHeight / sizeOfElementsY) < scale)
+            {
+                scale = (DrawBoard.ActualHeight / sizeOfElementsY);
+            }
+
+
+
+            foreach (var gem in gems)
+            {
+                drawType = gem.name;        //TODO: ograniczyć / zmodyfikować szerokość na wysokość elementu DrawBoard
+                pntStart.X = (gem.startX - (gem.width)) * scale;                            
+                pntStart.Y = DrawBoard.ActualHeight - ((gem.startY - (gem.height)) * scale);
+                pntEnd.X = (gem.startX + (gem.width)) * scale;
+                pntEnd.Y = DrawBoard.ActualHeight - ((gem.startY + (gem.height)) * scale);
+                drawState = "First_ON";
+                Drawnado();
+                drawState = "OFF";
+            }
         }
 
         private void MenuItem_File_SaveClick(object sender, RoutedEventArgs e)
@@ -147,12 +186,12 @@ namespace Edytor_graficzny
                         break;
                     case "line":
                         Line myLine = new Line();
-                        myLine.Stroke = Brushes.SteelBlue;
+                        myLine.Stroke = Brushes.DarkGray;
                         myLine.X1 = pntStart.X;
                         myLine.X2 = pntEnd.X;
                         myLine.Y1 = pntStart.Y;
                         myLine.Y2 = pntEnd.Y;
-                        myLine.StrokeThickness = 5;
+                        myLine.StrokeThickness = 2;
 
                         DrawBoard.Children.Add(myLine);
                         break;
