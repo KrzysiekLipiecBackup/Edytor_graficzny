@@ -54,9 +54,37 @@
         </Menu>
 
         <StackPanel DockPanel.Dock="Left" Margin="5">
+            <TextBlock TextAlignment="Center">Tools</TextBlock>
             <Button Name="btnPen" Content="Pen" Click="btnPen_Click"></Button>
             <Button Name="btnLine" Content="Line" Click="btnLine_Click"></Button>
             <Button Name="btnEllipse" Content="Ellipse" Click="btnEllipse_Click" ></Button>
+            <Separator />
+            <Separator />
+            <TextBlock TextAlignment="Center" >Opcje</TextBlock>
+            <WrapPanel>
+                <Button Name="btnColorBlack" Width="20" Height="20" Click="btnColorBlack_Click">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Res/Images/Black.png"/>
+                    </Button.Background>
+                </Button>
+                <Button Name="btnColorRed" Width="20" Height="20" Click="btnColorRed_Click">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Res/Images/Red.png"/>
+                    </Button.Background>
+                </Button>
+            </WrapPanel>
+            <WrapPanel>
+                <Button Name="btnColorGreen" Width="20" Height="20" Click="btnColorGreen_Click">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Res/Images/Green.png"/>
+                    </Button.Background>
+                </Button>
+                <Button Name="btnColorBlue" Width="20" Height="20" Click="btnColorBlue_Click">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Res/Images/Blue.png"/>
+                    </Button.Background>
+                </Button>
+            </WrapPanel>
         </StackPanel>
 
         <StatusBar DockPanel.Dock="Bottom" Margin="5">

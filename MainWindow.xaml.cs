@@ -21,9 +21,9 @@ namespace Edytor_graficzny
         private int iter = 0;
         private Point pntStart;
         private Point pntEnd;
-        private Byte colorRed;
-        private Byte colorGreen;
-        private Byte colorBlue;
+        private Byte colorRed = 0;
+        private Byte colorGreen = 0;
+        private Byte colorBlue = 0;
         private string drawType = "line";
         private string drawState = "OFF";   // First_ON, ON, First_OFF, OFF
         private readonly Random randomNumber = new Random();
@@ -70,18 +70,20 @@ namespace Edytor_graficzny
             }
 
 
-
+            string tempDrawType = drawType;
             foreach (var gem in gems)
             {
-                drawType = gem.name;        //TODO: ograniczyć / zmodyfikować szerokość na wysokość elementu DrawBoard
-                pntStart.X = (gem.startX - (gem.width)) * scale;                            
-                pntStart.Y = DrawBoard.ActualHeight - ((gem.startY - (gem.height)) * scale);
-                pntEnd.X = (gem.startX + (gem.width)) * scale;
-                pntEnd.Y = DrawBoard.ActualHeight - ((gem.startY + (gem.height)) * scale);
+                drawType = gem.name;
+                pntStart.X = (gem.startX - gem.width) * scale;                            
+                //pntStart.Y = DrawBoard.ActualHeight - ((gem.startY - (gem.height)) * scale);
+                pntStart.Y = (sizeOfElementsY - gem.startY - gem.height) * scale;
+                pntEnd.X = (gem.startX + gem.width) * scale;
+                pntEnd.Y = (sizeOfElementsY - gem.startY + gem.height) * scale;
                 drawState = "First_ON";
                 Drawnado();
                 drawState = "OFF";
             }
+            drawType = tempDrawType;
         }
 
         private void MenuItem_File_SaveClick(object sender, RoutedEventArgs e)
@@ -119,11 +121,6 @@ namespace Edytor_graficzny
         private void DrawBoard_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             pntStart = e.GetPosition(DrawBoard);
-
-            colorRed = Convert.ToByte(randomNumber.Next(50, 255));
-            colorBlue = Convert.ToByte(randomNumber.Next(50, 255));
-            colorGreen = Convert.ToByte(randomNumber.Next(50, 255));
-
             if (drawState == "First_OFF" || drawState == "OFF") drawState = "First_ON";
         }
 
@@ -198,7 +195,7 @@ namespace Edytor_graficzny
                     case "ellipse":
                         Ellipse myEllipse = new Ellipse();
                         SolidColorBrush mySolidColorBrush = new SolidColorBrush();
-                        mySolidColorBrush.Color = Color.FromArgb(colorRed, colorBlue, colorGreen, 0);
+                        mySolidColorBrush.Color = Color.FromArgb(255, colorRed, colorGreen, colorBlue);
                         myEllipse.Fill = mySolidColorBrush;
                         myEllipse.StrokeThickness = 2;
                         myEllipse.Stroke = Brushes.Black;
@@ -219,6 +216,34 @@ namespace Edytor_graficzny
                 else if (drawState == "First_OFF") drawState = "OFF";
                 currentTool.Text = Convert.ToString(DrawBoard.Children.Count);
             }
+        }
+
+        private void btnColorBlack_Click(object sender, RoutedEventArgs e)
+        {
+            colorRed = 0;
+            colorGreen = 0;
+            colorBlue = 0;
+        }
+
+        private void btnColorRed_Click(object sender, RoutedEventArgs e)
+        {
+            colorRed = 237;
+            colorGreen = 36;
+            colorBlue = 28;
+        }
+
+        private void btnColorGreen_Click(object sender, RoutedEventArgs e)
+        {
+            colorRed = 47;
+            colorGreen = 215;
+            colorBlue = 97;
+        }
+
+        private void btnColorBlue_Click(object sender, RoutedEventArgs e)
+        {
+            colorRed = 0;
+            colorGreen = 162;
+            colorBlue = 232;
         }
     }
 }

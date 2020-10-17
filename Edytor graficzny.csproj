@@ -11,7 +11,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Res\Images\Black.png" />
+    <None Remove="Res\Images\Blue.png" />
+    <None Remove="Res\Images\Green.png" />
+    <None Remove="Res\Images\Red.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="ILRepack" Version="2.0.18" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Res\Images\Black.png" />
+    <Resource Include="Res\Images\Blue.png" />
+    <Resource Include="Res\Images\Green.png" />
+    <Resource Include="Res\Images\Red.png" />
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

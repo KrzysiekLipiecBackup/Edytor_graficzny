@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         Title="Sandbox" 
-        Height="600" Width="800"
+        Height="800" Width="800"
         Background="{DynamicResource WindowBackgroundBrush}">
 
 
