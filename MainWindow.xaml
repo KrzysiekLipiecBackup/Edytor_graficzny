@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         Title="Title_is_replaced" 
-        Height="600" Width="800"
+        Height="900" Width="1600"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource WindowBackgroundBrush}">
 
@@ -32,6 +32,15 @@
         <Style TargetType="{x:Type Button}">
             <Setter Property="Padding" Value="5,2"/>
         </Style>
+
+        <Style x:Key="SeparatorStyle"
+           TargetType="{x:Type Border}">
+            <Setter Property="BorderThickness" Value="1,0,0,0"/>
+            <Setter Property="BorderBrush" Value="#FFC5C5C5"/>
+            <Setter Property="Margin" Value="2,0,2,0"/>
+            <Setter Property="Width" Value="2"/>
+            <Setter Property="Background" Value="White"/>
+        </Style>
     </Window.Resources>
 
 
@@ -49,43 +58,86 @@
                 <MenuItem Header="_Exit" />
             </MenuItem>
             <MenuItem Header="Sandbox" Click="MenuItem_Sandbox_Click"></MenuItem>
+            <MenuItem Header="Ribbon" Click="MenuItem_Ribbon_Click"></MenuItem>
             <MenuItem Header="_Undo" Click="MenuItem_Undo_Click"></MenuItem>
             <MenuItem Header="_NewTestLine" Click="MenuItem_btnNewLineTest_Click"></MenuItem>
         </Menu>
 
-        <StackPanel DockPanel.Dock="Left" Margin="5">
-            <TextBlock TextAlignment="Center">Tools</TextBlock>
-            <Button Name="btnPen" Content="Pen" Click="btnPen_Click"></Button>
-            <Button Name="btnLine" Content="Line" Click="btnLine_Click"></Button>
-            <Button Name="btnEllipse" Content="Ellipse" Click="btnEllipse_Click" ></Button>
-            <Separator />
-            <Separator />
-            <TextBlock TextAlignment="Center" >Opcje</TextBlock>
-            <WrapPanel>
-                <Button Name="btnColorBlack" Width="20" Height="20" Click="btnColorBlack_Click">
-                    <Button.Background>
-                        <ImageBrush ImageSource="/Res/Images/Black.png"/>
-                    </Button.Background>
-                </Button>
-                <Button Name="btnColorRed" Width="20" Height="20" Click="btnColorRed_Click">
-                    <Button.Background>
-                        <ImageBrush ImageSource="/Res/Images/Red.png"/>
-                    </Button.Background>
-                </Button>
-            </WrapPanel>
-            <WrapPanel>
-                <Button Name="btnColorGreen" Width="20" Height="20" Click="btnColorGreen_Click">
-                    <Button.Background>
-                        <ImageBrush ImageSource="/Res/Images/Green.png"/>
-                    </Button.Background>
-                </Button>
-                <Button Name="btnColorBlue" Width="20" Height="20" Click="btnColorBlue_Click">
-                    <Button.Background>
-                        <ImageBrush ImageSource="/Res/Images/Blue.png"/>
-                    </Button.Background>
-                </Button>
-            </WrapPanel>
-        </StackPanel>
+        <Grid DockPanel.Dock="Top" Margin="5" Background="#FFE6E6E6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+
+            <StackPanel
+                Grid.Column="0"
+                Grid.Row="0"
+                Margin="5">
+                <Button Name="btnPen" Content="Pen" Click="btnPen_Click"></Button>
+                <Button Name="btnLine" Content="Line" Click="btnLine_Click"></Button>
+                <Button Name="btnEllipse" Content="Ellipse" Click="btnEllipse_Click" ></Button>
+            </StackPanel>
+            <TextBlock
+                Grid.Column="0"
+                Grid.Row="1"
+                Margin="2"
+                TextAlignment="Center" 
+                VerticalAlignment ="Bottom">Tools</TextBlock>
+            
+
+            <Border 
+                Grid.Column="1"
+                Grid.Row="0"
+                Style="{StaticResource SeparatorStyle}"/>
+            <Border 
+                Grid.Column="1"
+                Grid.Row="1"
+                Style="{StaticResource SeparatorStyle}"/>
+
+            
+            <StackPanel 
+                Grid.Column="2"
+                Grid.Row="0" 
+                Margin="5">
+                <StackPanel Orientation="Horizontal">
+                    <Button Name="btnColorBlack" Width="20" Height="20" Click="btnColorBlack_Click">
+                        <Button.Background>
+                            <ImageBrush ImageSource="/Res/Images/Black.png"/>
+                        </Button.Background>
+                    </Button>
+                    <Button Name="btnColorRed" Width="20" Height="20" Click="btnColorRed_Click">
+                        <Button.Background>
+                            <ImageBrush ImageSource="/Res/Images/Red.png"/>
+                        </Button.Background>
+                    </Button>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Button Name="btnColorGreen" Width="20" Height="20" Click="btnColorGreen_Click">
+                        <Button.Background>
+                            <ImageBrush ImageSource="/Res/Images/Green.png"/>
+                        </Button.Background>
+                    </Button>
+                    <Button Name="btnColorBlue" Width="20" Height="20" Click="btnColorBlue_Click">
+                        <Button.Background>
+                            <ImageBrush ImageSource="/Res/Images/Blue.png"/>
+                        </Button.Background>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+
+            <TextBlock
+                Grid.Column="2"
+                Grid.Row="1"
+                Margin="2"
+                TextAlignment="Center" 
+                VerticalAlignment ="Bottom">Colors</TextBlock>
+
+        </Grid>
 
         <StatusBar DockPanel.Dock="Bottom" Margin="5">
             <TextBlock Name="currentTool"></TextBlock>

@@ -21,9 +21,9 @@ namespace Edytor_graficzny
         private int iter = 0;
         private Point pntStart;
         private Point pntEnd;
-        private Byte colorRed = 0;
-        private Byte colorGreen = 0;
-        private Byte colorBlue = 0;
+        private Byte colorRed = 255;
+        private Byte colorGreen = 255;
+        private Byte colorBlue = 255;
         private string drawType = "line";
         private string drawState = "OFF";   // First_ON, ON, First_OFF, OFF
         private readonly Random randomNumber = new Random();
@@ -96,6 +96,14 @@ namespace Edytor_graficzny
             s.Top = 50;
             s.Left = 50;
             s.Show();
+        }
+
+        private void MenuItem_Ribbon_Click(object sender, RoutedEventArgs e)
+        {
+            Ribbon r = new Ribbon();
+            r.Top = 50;
+            r.Left = 50;
+            r.Show();
         }
 
         private void MenuItem_Undo_Click(object sender, RoutedEventArgs e)

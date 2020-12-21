@@ -15,7 +15,7 @@ namespace Edytor_graficzny
 			// Do stuff here, e.g. to the window
 			if (e.Args.Length == 1)
 				MessageBox.Show("Found Secret #1\n\nAdded Parameter: \n\n" + e.Args[0]);
-			wnd.Title = "Hello World";
+			wnd.Title = "Edytor Graficzny";
 			// Show the window
 			wnd.Show();
 		}

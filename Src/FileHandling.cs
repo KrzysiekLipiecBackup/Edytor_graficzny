@@ -69,6 +69,13 @@ namespace Edytor_graficzny.Src
         public void OpenFile(List<GraphicElementModel> graphicElementsModel)
         {
             string[] test = File.ReadAllLines(tempTemplate);
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == true)
+            {
+                test = File.ReadAllLines(openFileDialog.FileName);
+            }
+            
+            //string[] test = File.ReadAllLines(tempTemplate);
             List<string> elementsFromOpenedFile = new List<string>();
             bool isElement = false;
             foreach (var _string in test)
@@ -128,10 +135,6 @@ namespace Edytor_graficzny.Src
                 System.Diagnostics.Debug.Write(_string);
                 System.Diagnostics.Debug.Write("\n");
             }
-
-            //OpenFileDialog openFileDialog = new OpenFileDialog();
-            //if (openFileDialog.ShowDialog() == true)
-            //    MainWindow.currentTool.Text = File.ReadAllText(openFileDialog.FileName);
         }
         
         public void SaveFile()
