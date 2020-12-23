@@ -1,23 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Windows;
+using System.Windows.Media;
 
 namespace Edytor_graficzny.Models
 {
     class GraphicElementModel
     {
-        public int id;
-        public double startX = 0;
-        public double startY = 0;
-        public double width = 0;
-        public double height = 0;
-        public string name;
-        //private string color;
-        //private string stroke;
-        
-        public GraphicElementModel(int id) 
+        public int ElementId { get; set; }
+        public string ElementType { get; set; }
+        public string ElementName { get; set; }
+        public Point ElementStartingLocation { get; set; }
+        public double ElementWidth { get; set; }
+        public double ElementHeight { get; set; }
+        public Color ElementColor { get; set; }
+        public double ElementStroke { get; set; }
+
+
+        public GraphicElementModel(int id = 0, string type = "", string name = "", Point location = default, double width = 0, double height = 0, Color color = default, double stroke = 1)
         {
-            this.id = id;
+            ElementId = id;
+            ElementType = type;
+            ElementName = name;
+            ElementStartingLocation = location;
+            ElementWidth = width;
+            ElementHeight = height;
+            ElementColor = color;
+            ElementStroke = stroke;
         }
     }
 }

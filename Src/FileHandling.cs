@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Windows;
 using System.Windows.Shapes;
 using Edytor_graficzny.Models;
 using Microsoft.Win32;
@@ -14,11 +15,10 @@ namespace Edytor_graficzny.Src
     {
         private string fileName = @"D:\temp\test.tex";
         private string tempTemplate = @"D:\Programowanie\Visual Studio C# WPF\Edytor graficzny\Res\Text\StartText.txt";
+        public List<GraphicElementModel> gems = new List<GraphicElementModel>();
+        public double scale = 25;
 
-        public FileHandling()
-        {
-
-        }
+        public FileHandling() { }
         
         public void NewFile()
         {
@@ -74,8 +74,6 @@ namespace Edytor_graficzny.Src
             {
                 test = File.ReadAllLines(openFileDialog.FileName);
             }
-            
-            //string[] test = File.ReadAllLines(tempTemplate);
             List<string> elementsFromOpenedFile = new List<string>();
             bool isElement = false;
             foreach (var _string in test)
@@ -86,17 +84,17 @@ namespace Edytor_graficzny.Src
                     elementsFromOpenedFile.Add(_string);
                     if (_string.Contains("\\draw"))
                     {
-                        int size = 0;
+                        int id = 0;
                         if (graphicElementsModel != null)
                         {
-                            size = graphicElementsModel.Count;
+                            id = graphicElementsModel.Count;
                         }
-                        GraphicElementModel gem = new GraphicElementModel(size);
+                        GraphicElementModel gem = new GraphicElementModel(id);
 
                         //TODO: inne typy
                         if (_string.Contains("ellipse"))
                         {
-                            gem.name = "ellipse";
+                            gem.ElementType = "ellipse";
 
                             string table = "";
                             double numbe = 0;
@@ -119,10 +117,9 @@ namespace Edytor_graficzny.Src
                                     }
                                 }
                             }
-                            gem.startX = numbersFromOneLine[0];
-                            gem.startY = numbersFromOneLine[1];
-                            gem.width = numbersFromOneLine[2];
-                            gem.height = numbersFromOneLine[3];
+                            gem.ElementStartingLocation = new Point(numbersFromOneLine[0], numbersFromOneLine[1]);
+                            gem.ElementWidth = numbersFromOneLine[2];
+                            gem.ElementHeight = numbersFromOneLine[3];
                             graphicElementsModel.Add(gem);
                         }
                     }
@@ -136,18 +133,76 @@ namespace Edytor_graficzny.Src
                 System.Diagnostics.Debug.Write("\n");
             }
         }
-        
+
         public void SaveFile()
         {
-
             List<string> fullTextList = new List<string>();
-            string[] startText = new string[] {"\\documentclass{article}", "\\usepackage{tikz}", "\\begin{document}", "\\begin{tikzpicture}"};
-            string[] endText = new string[] {"\\end{tikzpicture}", "\\end{document}"};
-            
-            fullTextList.AddRange(startText);
-            fullTextList.Add("\\draw (2,2) ellipse (7 and 5);");
-            fullTextList.AddRange(endText);
+            string[] startText = new string[] { "\\documentclass{article}", "\\usepackage{tikz}", "" };
+            string[] middleText = new string[] { "", "\\begin{document}", "\\begin{tikzpicture}", "" };
+            string[] endText = new string[] { "", "\\end{tikzpicture}", "\\end{document}" };
 
+            fullTextList.AddRange(startText);
+
+            #region \\tikzstyle{startstop} = [rectangle, rounded corners, minimum width = 3cm, minimum height = 1cm, text centered, draw = black, fill = red!30]");
+            string tempDeclarationEnd = "", tempDeclaration = "";
+            List<string> partialDeclarations = new List<string>();
+            List<string> declarations = new List<string>();
+            List<int> objectToDeclarationDependency = new List<int>();
+            foreach (GraphicElementModel gem in gems)
+            {
+                switch (gem.ElementType)
+                {
+                    case "startStop":
+                        tempDeclarationEnd = "} = [rectangle, rounded corners, minimum width = " 
+                            + Convert.ToString(gem.ElementWidth * 0.5) + "cm, minimum height = " 
+                            + Convert.ToString(gem.ElementHeight * 0.5) + "cm, text centered, draw = black, fill = {rgb,255:red," 
+                            + Convert.ToString(gem.ElementColor.R) + "; green," 
+                            + Convert.ToString(gem.ElementColor.G) + "; blue," 
+                            + Convert.ToString(gem.ElementColor.B) + "}]";
+                        break;                        
+                }
+                if (!partialDeclarations.Contains(tempDeclarationEnd))
+                {
+                    tempDeclaration = "\\tikzstyle{startStop" + partialDeclarations.Count() + tempDeclarationEnd;
+                    partialDeclarations.Add(tempDeclarationEnd);
+                    declarations.Add(tempDeclaration);
+                    objectToDeclarationDependency.Add(partialDeclarations.Count() - 1); 
+                }
+                else
+                {
+                    for (int i = 0; i < partialDeclarations.Count(); i++)
+                    {
+                        if (partialDeclarations[i] == tempDeclarationEnd)
+                        {
+                            objectToDeclarationDependency.Add(i);
+                        }
+                    }
+                }
+            }
+            fullTextList.AddRange(declarations);
+            #endregion
+
+            fullTextList.AddRange(middleText);
+
+
+            for (int i = 0; i < gems.Count(); i++)
+            {
+                string locationX = Convert.ToString(gems[i].ElementStartingLocation.X / scale / gems[i].ElementHeight);
+                locationX = locationX.Replace(',', '.');
+                string locationY = Convert.ToString(gems[i].ElementStartingLocation.Y / scale / gems[i].ElementHeight * -1);
+                locationY = locationY.Replace(',', '.');
+
+                fullTextList.Add("\\node (start"
+                    + Convert.ToString(gems[i].ElementId) + ") ["
+                    + gems[i].ElementType + Convert.ToString(objectToDeclarationDependency[i]) + ", xshift=" 
+                    + locationX + "cm, yshift=" 
+                    + locationY + "cm] {" 
+                    + gems[i].ElementName + "};");
+            }
+            //fullTextList.Add("\\node (start) [startStop] {Start};");    //napis Start zmienić/dodać
+
+
+            fullTextList.AddRange(endText);
 
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             if (saveFileDialog.ShowDialog() == true)

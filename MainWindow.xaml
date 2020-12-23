@@ -61,10 +61,13 @@
             <MenuItem Header="Ribbon" Click="MenuItem_Ribbon_Click"></MenuItem>
             <MenuItem Header="_Undo" Click="MenuItem_Undo_Click"></MenuItem>
             <MenuItem Header="_NewTestLine" Click="MenuItem_btnNewLineTest_Click"></MenuItem>
+            <MenuItem Header="_Test" Click="MenuItem_btnTest_Click"></MenuItem>
         </Menu>
 
         <Grid DockPanel.Dock="Top" Margin="5" Background="#FFE6E6E6">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
                 <ColumnDefinition Width="auto" />
                 <ColumnDefinition Width="auto" />
                 <ColumnDefinition Width="auto" />
@@ -78,7 +81,7 @@
                 Grid.Column="0"
                 Grid.Row="0"
                 Margin="5">
-                <Button Name="btnPen" Content="Pen" Click="btnPen_Click"></Button>
+                <Button Name="btnStartStop" Content="Start/Stop" Click="btnStartStop_Click"></Button>
                 <Button Name="btnLine" Content="Line" Click="btnLine_Click"></Button>
                 <Button Name="btnEllipse" Content="Ellipse" Click="btnEllipse_Click" ></Button>
             </StackPanel>
@@ -87,7 +90,8 @@
                 Grid.Row="1"
                 Margin="2"
                 TextAlignment="Center" 
-                VerticalAlignment ="Bottom">Tools</TextBlock>
+                VerticalAlignment ="Bottom">Tools
+            </TextBlock>
             
 
             <Border 
@@ -99,7 +103,7 @@
                 Grid.Row="1"
                 Style="{StaticResource SeparatorStyle}"/>
 
-            
+
             <StackPanel 
                 Grid.Column="2"
                 Grid.Row="0" 
@@ -129,24 +133,72 @@
                     </Button>
                 </StackPanel>
             </StackPanel>
-
             <TextBlock
                 Grid.Column="2"
                 Grid.Row="1"
                 Margin="2"
                 TextAlignment="Center" 
-                VerticalAlignment ="Bottom">Colors</TextBlock>
+                VerticalAlignment ="Bottom">Colors
+            </TextBlock>
+
+            <Border 
+                Grid.Column="3"
+                Grid.Row="0"
+                Style="{StaticResource SeparatorStyle}"/>
+            <Border 
+                Grid.Column="3"
+                Grid.Row="1"
+                Style="{StaticResource SeparatorStyle}"/>
+
+            <StackPanel 
+                Grid.Column="4"
+                Grid.Row="0" 
+                Margin="5">
+                <DockPanel>
+                    <TextBlock TextTrimming="WordEllipsis" Width="40">Width</TextBlock>
+                    <TextBox x:Name="txtWidth" AcceptsReturn="True" Width="40" HorizontalAlignment="Right" />
+                    <TextBlock x:Name="txtCurrentWidth" TextTrimming="WordEllipsis" Width="120" Text="{Binding widthCurrent}"></TextBlock>
+                    <TextBlock Name="mouse_x" Width="40"></TextBlock>
+                </DockPanel>
+                <DockPanel>
+                    <TextBlock TextTrimming="WordEllipsis" Width="40">Height</TextBlock>
+                    <TextBox  Name="txtHeight" AcceptsReturn="True" Width="40"/>
+                    <TextBlock x:Name="txtCurrentHeight" TextTrimming="WordEllipsis" Width="120" Text="{Binding heightCurrent}"></TextBlock>
+                    <TextBlock Name="mouse_y" Width="40"></TextBlock>
+                </DockPanel>
+                <DockPanel>
+                    <TextBlock TextTrimming="WordEllipsis" Width="40">Scale</TextBlock>
+                    <TextBox Name="txtScale" AcceptsReturn="True" Width="40"/>
+                    <TextBlock x:Name="txtCurrentScale" TextTrimming="WordEllipsis" Width="120" Text="{Binding scaleCurrent}"></TextBlock>
+                    <TextBlock Name="gemsNumber" Width="40"></TextBlock>
+                </DockPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="btnConfirm" Content="Confirm" Click="btnConfirm_Click"></Button>
+                    <Button x:Name="btnGrid" Content="Show Grid" Click="btnGrid_Click" ></Button>
+                    <Button x:Name="btnClear" Content="Clear Canvas" Click="btnClear_Click" ></Button>
+                </StackPanel>
+                
+            </StackPanel>
+            <TextBlock
+                Grid.Column="4"
+                Grid.Row="1"
+                Margin="2"
+                TextAlignment="Center" 
+                VerticalAlignment ="Bottom">Others
+            </TextBlock>
 
         </Grid>
 
         <StatusBar DockPanel.Dock="Bottom" Margin="5">
             <TextBlock Name="currentTool"></TextBlock>
         </StatusBar>
+          
         
         <Canvas Margin="5" 
                 Name="DrawBoard" 
                 Background="#FFE6E6E6"
                 MouseLeftButtonDown="DrawBoard_MouseLeftButtonDown"
+                MouseLeftButtonUp="DrawBoard_MouseLeftButtonUp"
                 MouseMove="DrawBoard_MouseMove"
                 ClipToBounds="True">
                 <!--Width="726"-->
