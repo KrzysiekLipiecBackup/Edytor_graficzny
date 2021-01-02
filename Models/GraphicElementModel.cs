@@ -6,7 +6,7 @@ using System.Windows.Media;
 
 namespace Edytor_graficzny.Models
 {
-    class GraphicElementModel
+    class GraphicElementModel   //0;   ellipse;    Start;    0.0;    3;    1;    255,120,120;    1
     {
         public int ElementId { get; set; }
         public string ElementType { get; set; }
@@ -28,6 +28,18 @@ namespace Edytor_graficzny.Models
             ElementHeight = height;
             ElementColor = color;
             ElementStroke = stroke;
+        }
+
+        public GraphicElementModel(int id = 0, string type = "", string name = "", double width = 0, double height = 0, Color color = default)
+        {
+            ElementId = id;
+            ElementType = type;
+            ElementName = name;
+            ElementStartingLocation = new Point(0,0);
+            ElementWidth = width;
+            ElementHeight = height;
+            ElementColor = color;
+            ElementStroke = 1;
         }
     }
 }

@@ -18,7 +18,6 @@ namespace Edytor_graficzny
 {
     public partial class MainWindow : Window
     {
-        //private List<GraphicElementModel> gems = new List<GraphicElementModel>();
         private int iter = 0;
         private Point pntStart;
         private Point pntEnd;
@@ -26,29 +25,30 @@ namespace Edytor_graficzny
         private double width = 6, height = 2;
         private double cornerRoundness = 0.14;
         private bool isGridActive = false;
-        private string drawType = "line";
+        private string drawType = "Start/Stop";
         private string drawState = "OFF";   // First_ON, ON, First_OFF, OFF
         private readonly Random randomNumber = new Random();
         private readonly Src.FileHandling fileHandling = new Src.FileHandling();
+        private List<Point> arrowPoints = new List<Point>();
 
 
         public MainWindow()
         {
             InitializeComponent();
             currentTool.Text = "Current tool: " + drawType;
-            btnStartStop.IsEnabled = true;
-            btnLine.IsEnabled = false;
-            btnEllipse.IsEnabled = true;
+            btnStartStop.IsEnabled = false;
+            btnFinishArrow.IsEnabled = false;
 
-            ConstantUpdate();
+            UpdateElements();
+            TextUpdate();
         }
 
-        private void ConstantUpdate()
+        private void TextUpdate()
         {
-
             txtCurrentWidth.Text = "  Current width: " + width.ToString();
             txtCurrentHeight.Text = "  Current height: " + height.ToString();
             txtCurrentScale.Text = "  Current scale: " + fileHandling.scale.ToString();
+            txtCurrentGridItems.Text = "  Current number: " + (fileHandling.gridItemsPerCM * 12).ToString() + "; each crate: " + 1/fileHandling.gridItemsPerCM + "cm";
         }
 
         private void MenuItem_File_NewClick(object sender, RoutedEventArgs e)
@@ -59,47 +59,15 @@ namespace Edytor_graficzny
         private void MenuItem_File_OpenClick(object sender, RoutedEventArgs e)
         {
             fileHandling.gems.Clear();
-            DrawBoard.Children.Clear();
             fileHandling.OpenFile(fileHandling.gems);
-            double sizeOfElementsX = 0;
-            double sizeOfElementsY = 0;
-            foreach (var gem in fileHandling.gems)
-            {
-                if (gem.ElementStartingLocation.X + gem.ElementWidth > sizeOfElementsX)
-                {
-                    sizeOfElementsX = gem.ElementStartingLocation.X + gem.ElementWidth;
-                }
-                if (gem.ElementStartingLocation.Y + gem.ElementHeight > sizeOfElementsY)
-                {
-                    sizeOfElementsY = gem.ElementStartingLocation.Y + gem.ElementHeight;
-                }
-            }
-            fileHandling.scale = (DrawBoard.ActualWidth / sizeOfElementsX);
-            if ((DrawBoard.ActualHeight / sizeOfElementsY) < fileHandling.scale)
-            {
-                fileHandling.scale = (DrawBoard.ActualHeight / sizeOfElementsY);
-            }
-
-
-            string tempDrawType = drawType;
-            foreach (var gem in fileHandling.gems)
-            {
-                drawType = gem.ElementType;
-                pntStart.X = (gem.ElementStartingLocation.X - gem.ElementWidth) * fileHandling.scale;
-                pntStart.Y = (sizeOfElementsY - gem.ElementStartingLocation.Y - gem.ElementHeight) * fileHandling.scale;
-                pntEnd.X = (gem.ElementStartingLocation.X + gem.ElementWidth) * fileHandling.scale;
-                pntEnd.Y = (sizeOfElementsY - gem.ElementStartingLocation.Y + gem.ElementHeight) * fileHandling.scale;
-                drawState = "First_ON";
-                Drawnado();
-                drawState = "OFF";
-            }
-            drawType = tempDrawType;
+            UpdateElements();
         }
 
         private void MenuItem_File_SaveClick(object sender, RoutedEventArgs e)
         {
             fileHandling.SaveFile();
         }
+
         private void MenuItem_Sandbox_Click(object sender, RoutedEventArgs e)
         {
             Sandbox s = new Sandbox();
@@ -118,7 +86,8 @@ namespace Edytor_graficzny
 
         private void MenuItem_Undo_Click(object sender, RoutedEventArgs e)
         {
-            if (DrawBoard.Children.Count > 0) DrawBoard.Children.RemoveAt(DrawBoard.Children.Count - 1);
+            if (fileHandling.gems.Count > 0) fileHandling.gems.RemoveAt(fileHandling.gems.Count - 1);
+            UpdateElements();
         }
 
         private void MenuItem_btnNewLineTest_Click(object sender, RoutedEventArgs e)
@@ -138,10 +107,38 @@ namespace Edytor_graficzny
 
         private void MenuItem_btnTest_Click(object sender, RoutedEventArgs e)
         {
-            Point testPoint = new Point(0, 0);
-            Color testColor = Color.FromRgb(255, 255, 255);
-            GraphicElementModel testA = new GraphicElementModel(fileHandling.gems.Count, "startStop", "Start", testPoint, 3, 1, testColor, 1);
-            fileHandling.gems.Add(testA);
+            isGridActive = true;
+            GraphicElementModel testStartStop = new GraphicElementModel(0, "Start/Stop", "test", new Point(1, 1), 6, 2, color, 1);
+            GraphicElementModel testIO = new GraphicElementModel(1, "Input/Output", "test", new Point(9, 1), 6, 2, color, 1);
+            GraphicElementModel testProcess = new GraphicElementModel(2, "Process", "test", new Point(1, 5), 6, 2, color, 1);
+            GraphicElementModel testDecision = new GraphicElementModel(3, "Decision", "test", new Point(9, 5), 6, 2, color, 1);
+
+            fileHandling.gems.Add(testStartStop);
+            fileHandling.gems.Add(testIO);
+            fileHandling.gems.Add(testProcess);
+            fileHandling.gems.Add(testDecision);
+
+            List<Point> testList = new List<Point>();
+            testList.Add(new Point(4, 3));
+            testList.Add(new Point(4, 5));
+            ArrowsModel testArrow = new ArrowsModel(testList, "test");
+
+            List<Point> testList2 = new List<Point>();
+            testList2.Add(new Point(12, 3));
+            testList2.Add(new Point(12, 4));
+            testList2.Add(new Point(4, 4));
+            ArrowsModel testArrow2 = new ArrowsModel(testList2, "test");
+
+            //List<Point> testList3 = new List<Point>();
+            //testList3.Add(new Point(12, 4));
+            //testList3.Add(new Point(12, 5));
+            //ArrowsModel testArrow3 = new ArrowsModel(testList3, "test");
+
+            fileHandling.arrows.Add(testArrow2);
+            fileHandling.arrows.Add(testArrow);
+            //fileHandling.arrows.Add(testArrow3);
+
+            UpdateElements();
         }
 
         private void DrawBoard_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -167,40 +164,72 @@ namespace Edytor_graficzny
             Drawnado();
         }
 
+        #region Tools buttons handling
         private void btnStartStop_Click(object sender, RoutedEventArgs e)
         {
-            EnableAllButtons();
-            drawType = "startStop";
-            currentTool.Text = "Current tool: " + drawType;
-
-            //double startX = 1, startY = 1;
-
-            //Rect myRect = new Rect(startX * scale, startY * scale, width * scale, height * scale);
-            //RectangleGeometry test2 = new RectangleGeometry(myRect, cornerRoundness * scale * height, cornerRoundness * scale * height);
-
-            //Path startStop = new Path();
-            //startStop.Stroke = Brushes.Black;
-            //startStop.StrokeThickness = 2;
-            //startStop.Data = test2;
-
-            //DrawBoard.Children.Add(startStop);
+            ButtonControll(sender.ToString());
+            btnStartStop.IsEnabled = false;
         }
-
-        private void btnLine_Click(object sender, RoutedEventArgs e)
+        private void btnIO_Click(object sender, RoutedEventArgs e)
         {
-            EnableAllButtons();
-            btnLine.IsEnabled = false;
-            drawType = "line";
-            currentTool.Text = "Current tool: " + drawType;
+            ButtonControll(sender.ToString());
+            btnIO.IsEnabled = false;
         }
-
+        private void btnProcess_Click(object sender, RoutedEventArgs e)
+        {
+            ButtonControll(sender.ToString());
+            btnProcess.IsEnabled = false;
+        }
+        private void btnDecision_Click(object sender, RoutedEventArgs e)
+        {
+            ButtonControll(sender.ToString());
+            btnDecision.IsEnabled = false;
+        }
+        private void btnSolidLine_Click(object sender, RoutedEventArgs e)
+        {
+            ButtonControll(sender.ToString());
+            btnSolidLine.IsEnabled = false;
+        }
+        private void btnDashedLine_Click(object sender, RoutedEventArgs e)
+        {
+            ButtonControll(sender.ToString());
+            btnDashedLine.IsEnabled = false;
+        }
+        private void btnDottedLine_Click(object sender, RoutedEventArgs e)
+        {
+            ButtonControll(sender.ToString());
+            btnDottedLine.IsEnabled = false;
+        }
+        private void btnFinishArrow_Click(object sender, RoutedEventArgs e)
+        {
+            ButtonControll(sender.ToString());
+            ArrowCreation();
+            btnFinishArrow.IsEnabled = false;
+        }
         private void btnEllipse_Click(object sender, RoutedEventArgs e)
         {
-            EnableAllButtons();
+            ButtonControll(sender.ToString());
             btnEllipse.IsEnabled = false;
-            drawType = "ellipse";
+        }
+
+        private void ButtonControll(string buttonName)
+        {
+            btnStartStop.IsEnabled = true;
+            btnIO.IsEnabled = true;
+            btnProcess.IsEnabled = true;
+            btnDecision.IsEnabled = true;
+            btnSolidLine.IsEnabled = true;
+            btnDashedLine.IsEnabled = true;
+            btnDottedLine.IsEnabled = true;
+            btnEllipse.IsEnabled = true;
+
+            buttonName.Trim();
+            string[] parts = buttonName.Split(":".ToCharArray());
+
+            drawType = parts[1].Trim();
             currentTool.Text = "Current tool: " + drawType;
         }
+        #endregion
 
         private void btnConfirm_Click(object sender, RoutedEventArgs e)
         {
@@ -224,6 +253,16 @@ namespace Edytor_graficzny
                 txtScale.Text = "";
             }
             catch { }
+
+            try
+            {
+                fileHandling.gridItemsPerCM = Convert.ToDouble(txtGridItems.Text)/12;
+                txtCurrentGridItems.Text = "";
+            }
+            catch { }
+
+            UpdateElements();
+            TextUpdate();
         }
 
         #region Grid Drawing
@@ -255,24 +294,29 @@ namespace Edytor_graficzny
                 grid.Data = lineGeometry;
                 DrawBoard.Children.Add(grid);
             }
+            Path borderLine = new Path();
+            borderLine.Stroke = Brushes.Black;
+            borderLine.Opacity = 0.3;
+            borderLine.StrokeThickness = 2;
+            LineGeometry lineBorderLine = new LineGeometry(new Point(fileHandling.gridItemsPerCM * 12 * fileHandling.scale, 0), new Point(fileHandling.gridItemsPerCM * 12 * fileHandling.scale, DrawBoard.ActualHeight));
+            borderLine.Data = lineBorderLine;
+            DrawBoard.Children.Add(borderLine);
         }
         #endregion
+
         private void btnClear_Click(object sender, RoutedEventArgs e)
         {
             fileHandling.gems.Clear();
+            fileHandling.arrows.Clear();
+            arrowPoints.Clear();
             UpdateElements();
         }
 
-        private void EnableAllButtons()
-        {
-            btnStartStop.IsEnabled = true;
-            btnLine.IsEnabled = true;
-            btnEllipse.IsEnabled = true;
-        }
 
         private void Drawnado()
         {
             Point startPoint;
+            Point endPoint;
             if (drawState != "OFF")
             {
                 if (drawState == "ON" || drawState == "First_OFF")
@@ -282,78 +326,173 @@ namespace Edytor_graficzny
                         DrawBoard.Children.RemoveAt(DrawBoard.Children.Count - 1);
                     }
                 }
+                Color blueprintColor = Color.FromRgb(120, 120, 255);
 
-                switch (drawType)
+                if (drawType != "Solid Line")
                 {
-                    case "startStop":
-                        startPoint = new Point(Convert.ToInt32(pntStart.X / fileHandling.scale - width / 2) * fileHandling.scale, Convert.ToInt32(pntStart.Y / fileHandling.scale - height / 2) * fileHandling.scale);
-                        if (pntEnd != null) startPoint = new Point(Convert.ToInt32(pntEnd.X / fileHandling.scale - width / 2) * fileHandling.scale, Convert.ToInt32(pntEnd.Y / fileHandling.scale - height / 2) * fileHandling.scale);
-                        
-                        Color blueprintColor = Color.FromRgb(120, 120, 255);
+                    startPoint = new Point(Convert.ToInt32(pntStart.X / fileHandling.scale - width / 2), Convert.ToInt32(pntStart.Y / fileHandling.scale - height / 2));
+                    if (pntEnd != null) startPoint = new Point(Convert.ToInt32(pntEnd.X / fileHandling.scale - width / 2), Convert.ToInt32(pntEnd.Y / fileHandling.scale - height / 2));
 
-                        Rect myRect = new Rect(startPoint.X, startPoint.Y, width * fileHandling.scale, height * fileHandling.scale);
 
-                        Path startStop = new Path();
-                        startStop.Stroke = new SolidColorBrush(blueprintColor);
-                        startStop.StrokeThickness = 2;
-                        startStop.Data = new RectangleGeometry(myRect, cornerRoundness * fileHandling.scale * height, cornerRoundness * fileHandling.scale * height);
+                    Path path = new Path();
+                    path.Stroke = new SolidColorBrush(blueprintColor);
+                    path.StrokeThickness = 2;
 
-                        DrawBoard.Children.Add(startStop);
-                        break;
+                    switch (drawType)
+                    {
+                        case "Start/Stop":
+                            Rect myRect = new Rect(startPoint.X * fileHandling.scale, startPoint.Y * fileHandling.scale, width * fileHandling.scale, height * fileHandling.scale);
 
-                    case "line":
-                        Line myLine = new Line
-                        {
-                            Stroke = Brushes.DarkGray,
-                            X1 = pntStart.X,
-                            X2 = pntEnd.X,
-                            Y1 = pntStart.Y,
-                            Y2 = pntEnd.Y,
-                            StrokeThickness = 2
-                        };
+                            path.Data = new RectangleGeometry(myRect, cornerRoundness * fileHandling.scale * height, cornerRoundness * fileHandling.scale * height);
+                            break;
 
-                        DrawBoard.Children.Add(myLine);
-                        break;
+                        case "Input/Output":
+                            PathFigure myPathFigure = new PathFigure();
+                            myPathFigure.StartPoint = new Point(Convert.ToInt32(startPoint.X + (width / 7)) * fileHandling.scale, Convert.ToInt32(startPoint.Y) * fileHandling.scale);
+                            myPathFigure.Segments.Add(
+                                new LineSegment(
+                                    new Point(Convert.ToInt32(startPoint.X + (width)) * fileHandling.scale, Convert.ToInt32(startPoint.Y) * fileHandling.scale),
+                                    true /* IsStroked */ ));
+                            myPathFigure.Segments.Add(
+                                new LineSegment(
+                                    new Point(Convert.ToInt32(startPoint.X + (width / 7 * 6)) * fileHandling.scale, Convert.ToInt32(startPoint.Y + (height)) * fileHandling.scale),
+                                    true /* IsStroked */ ));
+                            myPathFigure.Segments.Add(
+                                new LineSegment(
+                                    new Point(Convert.ToInt32(startPoint.X) * fileHandling.scale, Convert.ToInt32(startPoint.Y + (height)) * fileHandling.scale),
+                                    true /* IsStroked */ ));
+                            myPathFigure.Segments.Add(
+                                new LineSegment(
+                                    new Point(Convert.ToInt32(startPoint.X + (width / 7)) * fileHandling.scale, Convert.ToInt32(startPoint.Y) * fileHandling.scale),
+                                    true /* IsStroked */ ));
 
-                    case "ellipse":
-                        SolidColorBrush mySolidColorBrush = new SolidColorBrush
-                        {
-                            Color = Color.FromArgb(255, this.color.R, this.color.G, this.color.B)
-                        };
+                            PathGeometry myPathGeometry = new PathGeometry();
+                            myPathGeometry.Figures.Add(myPathFigure);
 
-                        Ellipse myEllipse = new Ellipse
-                        {
-                            Fill = mySolidColorBrush,
-                            StrokeThickness = 2,
-                            Stroke = Brushes.Black,
-                            Width = Math.Abs(pntStart.X - pntEnd.X),
-                            Height = Math.Abs(pntStart.Y - pntEnd.Y)
-                        };
+                            path.Data = myPathGeometry;
+                            break;
 
-                        DrawBoard.Children.Add(myEllipse);
+                        case "Process":
+                            Rect myRect2 = new Rect(startPoint.X * fileHandling.scale, startPoint.Y * fileHandling.scale, width * fileHandling.scale, height * fileHandling.scale);
 
-                        Canvas.SetLeft(myEllipse, (pntStart.X < pntEnd.X) ? pntStart.X : pntEnd.X);
-                        Canvas.SetTop(myEllipse, (pntStart.Y < pntEnd.Y) ? pntStart.Y : pntEnd.Y);
-                        break;
-                    default:
-                        Console.WriteLine("TODO - add error message");
-                        break;
+                            path.Data = new RectangleGeometry(myRect2);
+                            break;
+
+                        case "Decision":
+                            PathFigure myPathFigure2 = new PathFigure();
+                            myPathFigure2.StartPoint = new Point(Convert.ToInt32(startPoint.X + (width / 2)) * fileHandling.scale, Convert.ToInt32(startPoint.Y) * fileHandling.scale);
+                            myPathFigure2.Segments.Add(
+                                new LineSegment(
+                                    new Point(Convert.ToInt32(startPoint.X + width) * fileHandling.scale, Convert.ToInt32((startPoint.Y * 2) + height) * fileHandling.scale / 2),
+                                    true /* IsStroked */ ));
+                            myPathFigure2.Segments.Add(
+                                new LineSegment(
+                                    new Point(Convert.ToInt32(startPoint.X + (width / 2)) * fileHandling.scale, Convert.ToInt32(startPoint.Y + height) * fileHandling.scale),
+                                    true /* IsStroked */ ));
+                            myPathFigure2.Segments.Add(
+                                new LineSegment(
+                                    new Point(Convert.ToInt32(startPoint.X) * fileHandling.scale, Convert.ToInt32((startPoint.Y * 2) + height) * fileHandling.scale / 2),
+                                    true /* IsStroked */ ));
+                            myPathFigure2.Segments.Add(
+                                new LineSegment(
+                                    new Point(Convert.ToInt32(startPoint.X + (width / 2)) * fileHandling.scale, Convert.ToInt32(startPoint.Y) * fileHandling.scale),
+                                    true /* IsStroked */ ));
+
+                            PathGeometry myPathGeometry2 = new PathGeometry();
+                            myPathGeometry2.Figures.Add(myPathFigure2);
+
+                            path.Data = myPathGeometry2;
+                            break;
+
+                        case "Solid Line":
+                            PathFigure myPathFigure3 = new PathFigure();
+                            myPathFigure3.StartPoint = new Point(Convert.ToInt32(startPoint.X + (width / 7)) * fileHandling.scale, Convert.ToInt32(startPoint.Y) * fileHandling.scale);
+                            myPathFigure3.Segments.Add(
+                                new LineSegment(
+                                    new Point(Convert.ToInt32(startPoint.X + (width)) * fileHandling.scale, Convert.ToInt32(startPoint.Y) * fileHandling.scale),
+                                    true /* IsStroked */ ));
+                            myPathFigure3.Segments.Add(
+                                new LineSegment(
+                                    new Point(Convert.ToInt32(startPoint.X + (width / 7 * 6)) * fileHandling.scale, Convert.ToInt32(startPoint.Y + (height)) * fileHandling.scale),
+                                    true /* IsStroked */ ));
+                            myPathFigure3.Segments.Add(
+                                new LineSegment(
+                                    new Point(Convert.ToInt32(startPoint.X) * fileHandling.scale, Convert.ToInt32(startPoint.Y + (height)) * fileHandling.scale),
+                                    true /* IsStroked */ ));
+                            myPathFigure3.Segments.Add(
+                                new LineSegment(
+                                    new Point(Convert.ToInt32(startPoint.X + (width / 7)) * fileHandling.scale, Convert.ToInt32(startPoint.Y) * fileHandling.scale),
+                                    true /* IsStroked */ ));
+
+                            PathGeometry myPathGeometry3 = new PathGeometry();
+                            myPathGeometry3.Figures.Add(myPathFigure3);
+
+                            path.Data = myPathGeometry3;
+                            break;
+
+                        case "Ellipse":
+                            SolidColorBrush mySolidColorBrush = new SolidColorBrush
+                            {
+                                Color = Color.FromArgb(255, this.color.R, this.color.G, this.color.B)
+                            };
+
+                            Ellipse myEllipse = new Ellipse
+                            {
+                                Fill = mySolidColorBrush,
+                                StrokeThickness = 2,
+                                Stroke = Brushes.Black,
+                                Width = Math.Abs(pntStart.X - pntEnd.X),
+                                Height = Math.Abs(pntStart.Y - pntEnd.Y)
+                            };
+
+                            DrawBoard.Children.Add(myEllipse);
+
+                            Canvas.SetLeft(myEllipse, (pntStart.X < pntEnd.X) ? pntStart.X : pntEnd.X);
+                            Canvas.SetTop(myEllipse, (pntStart.Y < pntEnd.Y) ? pntStart.Y : pntEnd.Y);
+                            break;
+                        default:
+                            Console.WriteLine("TODO - add error message");
+                            break;
+                    }
+                    DrawBoard.Children.Add(path);
                 }
+                else
+                {
+                    btnFinishArrow.IsEnabled = true;
+                    if (!arrowPoints.Any()) startPoint = new Point(Convert.ToInt32(pntStart.X / fileHandling.scale) * fileHandling.scale, Convert.ToInt32(pntStart.Y / fileHandling.scale) * fileHandling.scale);
+                    else startPoint = new Point(arrowPoints.Last().X * fileHandling.scale, arrowPoints.Last().Y * fileHandling.scale);
+                    
+
+                    endPoint = new Point(Convert.ToInt32(pntStart.X / fileHandling.scale) * fileHandling.scale, Convert.ToInt32(pntStart.Y / fileHandling.scale) * fileHandling.scale);
+                    if (pntEnd != null) endPoint = new Point(Convert.ToInt32(pntEnd.X / fileHandling.scale) * fileHandling.scale, Convert.ToInt32(pntEnd.Y / fileHandling.scale) * fileHandling.scale);
+
+                    Line line = new Line();
+                    line.Stroke = new SolidColorBrush(blueprintColor);
+                    //line.Stroke = System.Windows.Media.Brushes.Black;
+                    line.X1 = startPoint.X;
+                    line.Y1 = startPoint.Y;
+                    line.X2 = endPoint.X;
+                    line.Y2 = endPoint.Y;
+                    line.StrokeThickness = 2;
+                    
+                    DrawBoard.Children.Add(line);  
+                }
+
 
                 if (drawState == "First_ON") drawState = "ON";
                 else if (drawState == "First_OFF")
                 {
-
-                    #region Saving new element to gems
-                    switch (drawType)
+                    #region Saving new elements
+                    if (drawType != "Solid Line")
                     {
-                        case "startStop":
-                            {
-                                GraphicElementModel element = new GraphicElementModel(fileHandling.gems.Count, "startStop", "Start", startPoint, width, height, color, 2);    //TODO: stroke //TODO: replace color with color picker
-                                fileHandling.gems.Add(element);
-
-                                break;
-                            }
+                        GraphicElementModel element = new GraphicElementModel(fileHandling.gems.Count, drawType, "Test", startPoint, width, height, color, 2);    //TODO: stroke
+                        fileHandling.gems.Add(element);
+                        
+                    }
+                    else
+                    {
+                        if (!arrowPoints.Any()) arrowPoints.Add(new Point(startPoint.X / fileHandling.scale, startPoint.Y / fileHandling.scale));
+                        arrowPoints.Add(new Point(endPoint.X / fileHandling.scale, endPoint.Y / fileHandling.scale));
                     }
                     #endregion
 
@@ -376,26 +515,155 @@ namespace Edytor_graficzny
             if (isGridActive) GridDrawing();
             foreach (GraphicElementModel gem in fileHandling.gems.ToList())
             {
+                Path path = new Path();
+                path.Stroke = Brushes.Black;
+                path.Fill = new SolidColorBrush(gem.ElementColor);
+                path.StrokeThickness = 2;
+
                 switch (gem.ElementType)
                 {
-                    case "startStop":
-                        {
-                            Rect myRect = new Rect(gem.ElementStartingLocation.X, gem.ElementStartingLocation.Y, gem.ElementWidth * fileHandling.scale, gem.ElementHeight * fileHandling.scale);
+                    case "Start/Stop":
+                        Rect myRect = new Rect(gem.ElementStartingLocation.X * fileHandling.scale, gem.ElementStartingLocation.Y * fileHandling.scale, gem.ElementWidth * fileHandling.scale, gem.ElementHeight * fileHandling.scale);
 
-                            Path startStop = new Path();
-                            startStop.Stroke = Brushes.Black;
-                            startStop.Fill = new SolidColorBrush(color);
-                            startStop.StrokeThickness = gem.ElementStroke;
-                            startStop.Data = new RectangleGeometry(myRect, cornerRoundness * fileHandling.scale * gem.ElementHeight, cornerRoundness * fileHandling.scale * gem.ElementHeight);
+                        path.Data = new RectangleGeometry(myRect, cornerRoundness * fileHandling.scale * gem.ElementHeight, cornerRoundness * fileHandling.scale * gem.ElementHeight);
+                        break;
 
+                    case "Input/Output":
+                        PathFigure myPathFigure = new PathFigure();
+                        myPathFigure.StartPoint = new Point(Convert.ToInt32(gem.ElementStartingLocation.X + (width / 7)) * fileHandling.scale, Convert.ToInt32(gem.ElementStartingLocation.Y) * fileHandling.scale);
+                        myPathFigure.Segments.Add(
+                            new LineSegment(
+                                new Point(Convert.ToInt32(gem.ElementStartingLocation.X + gem.ElementWidth) * fileHandling.scale, Convert.ToInt32(gem.ElementStartingLocation.Y) * fileHandling.scale),
+                                true /* IsStroked */ ));
+                        myPathFigure.Segments.Add(
+                            new LineSegment(
+                                new Point(Convert.ToInt32(gem.ElementStartingLocation.X + (gem.ElementWidth / 7 * 6)) * fileHandling.scale, Convert.ToInt32(gem.ElementStartingLocation.Y + gem.ElementHeight) * fileHandling.scale),
+                                true /* IsStroked */ ));
+                        myPathFigure.Segments.Add(
+                            new LineSegment(
+                                new Point(Convert.ToInt32(gem.ElementStartingLocation.X) * fileHandling.scale, Convert.ToInt32(gem.ElementStartingLocation.Y + gem.ElementHeight) * fileHandling.scale),
+                                true /* IsStroked */ ));
+                        myPathFigure.Segments.Add(
+                            new LineSegment(
+                                new Point(Convert.ToInt32(gem.ElementStartingLocation.X + (gem.ElementWidth / 7)) * fileHandling.scale, Convert.ToInt32(gem.ElementStartingLocation.Y) * fileHandling.scale),
+                                true /* IsStroked */ ));
 
-                            DrawBoard.Children.Add(startStop);
-                            break;
-                        }
+                        PathGeometry myPathGeometry = new PathGeometry();
+                        myPathGeometry.Figures.Add(myPathFigure);
+
+                        path.Data = myPathGeometry;
+                        break;
+
+                    case "Process":
+                        Rect myRect2 = new Rect(gem.ElementStartingLocation.X * fileHandling.scale, gem.ElementStartingLocation.Y * fileHandling.scale, gem.ElementWidth * fileHandling.scale, gem.ElementHeight * fileHandling.scale);
+
+                        path.Data = new RectangleGeometry(myRect2);
+                        break;
+
+                    case "Decision":
+                        PathFigure myPathFigure2 = new PathFigure();
+                        myPathFigure2.StartPoint = new Point(Convert.ToInt32(gem.ElementStartingLocation.X + (gem.ElementWidth / 2)) * fileHandling.scale, Convert.ToInt32(gem.ElementStartingLocation.Y) * fileHandling.scale);
+                        myPathFigure2.Segments.Add(
+                            new LineSegment(
+                                new Point(Convert.ToInt32(gem.ElementStartingLocation.X + gem.ElementWidth) * fileHandling.scale, Convert.ToInt32((gem.ElementStartingLocation.Y * 2) + gem.ElementHeight) * fileHandling.scale / 2),
+                                true /* IsStroked */ ));
+                        myPathFigure2.Segments.Add(
+                            new LineSegment(
+                                new Point(Convert.ToInt32(gem.ElementStartingLocation.X + (gem.ElementWidth / 2)) * fileHandling.scale, Convert.ToInt32(gem.ElementStartingLocation.Y + gem.ElementHeight) * fileHandling.scale),
+                                true /* IsStroked */ ));
+                        myPathFigure2.Segments.Add(
+                            new LineSegment(
+                                new Point(Convert.ToInt32(gem.ElementStartingLocation.X) * fileHandling.scale, Convert.ToInt32((gem.ElementStartingLocation.Y * 2) + gem.ElementHeight) * fileHandling.scale / 2),
+                                true /* IsStroked */ ));
+                        myPathFigure2.Segments.Add(
+                            new LineSegment(
+                                new Point(Convert.ToInt32(gem.ElementStartingLocation.X + (gem.ElementWidth / 2)) * fileHandling.scale, Convert.ToInt32(gem.ElementStartingLocation.Y) * fileHandling.scale),
+                                true /* IsStroked */ ));
+
+                        PathGeometry myPathGeometry2 = new PathGeometry();
+                        myPathGeometry2.Figures.Add(myPathFigure2);
+
+                        path.Data = myPathGeometry2;
+                        break;
                 }
+
+                DrawBoard.Children.Add(path);
+            }
+
+            foreach (ArrowsModel arrowsModel in fileHandling.arrows.ToList())
+            {
+                Path path = new Path();
+                path.Stroke = Brushes.Black;
+                path.StrokeThickness = 2;
+
+                PathFigure myPathFigureLine = new PathFigure();
+                myPathFigureLine.StartPoint = new Point(arrowsModel.points[0].X * fileHandling.scale, arrowsModel.points[0].Y * fileHandling.scale);
+
+                foreach (var _point in arrowsModel.points)
+                {
+                    if (_point != arrowsModel.points[0])
+                    {
+                        myPathFigureLine.Segments.Add(new LineSegment(new Point(_point.X * fileHandling.scale, _point.Y * fileHandling.scale), true));
+                    }
+                }
+
+                Point absCoordinates = new Point(arrowsModel.points.Last().X - arrowsModel.points[arrowsModel.points.Count()-2].X, arrowsModel.points.Last().Y - arrowsModel.points[arrowsModel.points.Count() - 2].Y);
+                double angle =  Math.Atan2(absCoordinates.Y, absCoordinates.X) * 180.0 / Math.PI;
+                Point arrowHeadLeft = new Point((arrowsModel.points.Last().X + (Math.Cos((angle + 135) * Math.PI / 180) / 8)) * fileHandling.scale, (arrowsModel.points.Last().Y + (Math.Sin((angle + 135) * Math.PI / 180) / 8)) * fileHandling.scale);
+                Point arrowHeadRight = new Point((arrowsModel.points.Last().X + (Math.Cos((angle + 225) * Math.PI / 180) / 8)) * fileHandling.scale, (arrowsModel.points.Last().Y + (Math.Sin((angle + 225) * Math.PI / 180) / 8)) * fileHandling.scale);
+
+                myPathFigureLine.Segments.Add(new LineSegment(arrowHeadLeft, true));
+                myPathFigureLine.Segments.Add(new LineSegment(new Point(arrowsModel.points.Last().X * fileHandling.scale, arrowsModel.points.Last().Y * fileHandling.scale), true));
+                myPathFigureLine.Segments.Add(new LineSegment(arrowHeadRight, true));
+                myPathFigureLine.Segments.Add(new LineSegment(new Point(arrowsModel.points.Last().X * fileHandling.scale, arrowsModel.points.Last().Y * fileHandling.scale), true));
+
+                PathGeometry myPathGeometryLine = new PathGeometry();
+                myPathGeometryLine.Figures.Add(myPathFigureLine);
+
+                path.Data = myPathGeometryLine;
+
+                DrawBoard.Children.Add(path);
+            }
+
+            if(arrowPoints.Any())
+            {
+                Path path = new Path();
+                path.Stroke = Brushes.Black;
+                path.StrokeThickness = 2;
+
+                PathFigure myPathFigureLine = new PathFigure();
+                myPathFigureLine.StartPoint = new Point(arrowPoints[0].X * fileHandling.scale, arrowPoints[0].Y * fileHandling.scale);
+
+                foreach (var _point in arrowPoints)
+                {
+                    if (_point != arrowPoints[0])
+                    {
+                        myPathFigureLine.Segments.Add(new LineSegment(new Point(_point.X * fileHandling.scale, _point.Y * fileHandling.scale), true));
+                    }
+                }
+                PathGeometry myPathGeometryLine = new PathGeometry();
+                myPathGeometryLine.Figures.Add(myPathFigureLine);
+
+                path.Data = myPathGeometryLine;
+
+                DrawBoard.Children.Add(path);
             }
         }
         #endregion
+
+        private void ArrowCreation()
+        {
+            List<Point> WHY_ARE_THIS_NEEDED = new List<Point>();
+            foreach (Point _point in arrowPoints)
+            {
+                WHY_ARE_THIS_NEEDED.Add(_point);
+            }
+
+            ArrowsModel element = new ArrowsModel(WHY_ARE_THIS_NEEDED, "Solid Line");
+            fileHandling.arrows.Add(element);
+            arrowPoints.Clear();
+            UpdateElements();
+        }
 
         private void btnColorBlack_Click(object sender, RoutedEventArgs e)
         {

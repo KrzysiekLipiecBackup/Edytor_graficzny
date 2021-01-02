@@ -6,12 +6,16 @@
         xmlns:local="clr-namespace:Edytor_graficzny"
         mc:Ignorable="d"
         Title="Ribbon" Height="900" Width="1600">
-    <Grid>  
-        <Grid.RowDefinitions>  
-            <RowDefinition Height="Auto"/>  
-            <RowDefinition/>  
-        </Grid.RowDefinitions>         
-            <Ribbon x:Name="RibbonWin"  SelectedIndex="0">            
-            </Ribbon>          
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Ribbon Grid.Row="0" x:Name="RibbonWin"  SelectedIndex="0">
+        </Ribbon>
+        <Button Grid.Row="0" Name="btnColorPicker" Content="COLOR PICKER" Click="btnColorPicker_Click"></Button>
+        <TextBox Grid.Row="1" Name="textBox1" Text="Hello, world!" />
     </Grid>
 </Window>
