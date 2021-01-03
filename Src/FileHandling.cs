@@ -20,16 +20,29 @@ namespace Edytor_graficzny.Src
         public List<GraphicElementModel> gems = new List<GraphicElementModel>();
         public List<GraphicElementModel> gemsDeclarations = new List<GraphicElementModel>();
         public List<ArrowsModel> arrows = new List<ArrowsModel>();
+
+        public double width = 6, height = 2;
         public double scale = 25;
         public double gridItemsPerCM = 2;
+        public Color[] toolColor = new Color[4];
+        public Color[] customButtonsColors = new Color[12];
 
-        public FileHandling() { }
-        
+        public FileHandling()
+        {
+            for(int i = 0; i < 12; i++)
+            {
+                customButtonsColors[i].A = 0;
+                customButtonsColors[i].R = 195;
+                customButtonsColors[i].G = 195;
+                customButtonsColors[i].B = 195;
+            }
+        }
+
         public void NewFile()
         {
             try
-            {   
-                if (File.Exists(fileName))  File.Delete(fileName);
+            {
+                if (File.Exists(fileName)) File.Delete(fileName);
 
                 // WRITE
                 using (FileStream fs = File.Create(fileName))
@@ -63,7 +76,7 @@ namespace Edytor_graficzny.Src
                             fs.Write(newLine, 0, newLine.Length);
                         }
                     }
-                }  
+                }
 
             }
             catch (Exception Ex)
@@ -157,6 +170,8 @@ namespace Edytor_graficzny.Src
                     int iteratrionNumber = 0;
                     int gemNumb = 0;
                     bool firstPointInElement = false;
+                    bool dashed = false;
+                    string arrowType = "Solid Line";
 
                     List<Point> arrowPoints = new List<Point>();
                     List<Point> correctArrowPoints = new List<Point>();
@@ -164,11 +179,18 @@ namespace Edytor_graficzny.Src
                     Point pointNext;
 
                     string[] parts = _string.Split("(),".ToCharArray());
+                    if (parts[1].Contains("dashed")) dashed = true;
                     for (int i = 1; i < parts.Count(); i++)     //  (parts[1] = Element0)  OR  (parts[1] = 4cm, parts[2] = -3.5cm)
                     {
+                        if (dashed)
+                        {
+                            i++;
+                            dashed = false;
+                            arrowType = "Dashed Line";
+                        }
                         bool pointConnected = false;
                         for (int j = 0; j < nodeNames.Count(); j++) //      nodeNames[0] = Element0, nodeNames[1] = Element1
-                        { 
+                        {
                             if (parts[i] == nodeNames[j])
                             {
                                 arrowPoints.Add(new Point(gems[j].ElementStartingLocation.X + gems[j].ElementWidth / 2, gems[j].ElementStartingLocation.Y + gems[j].ElementHeight / 2));
@@ -177,7 +199,7 @@ namespace Edytor_graficzny.Src
 
                                 if (iteratrionNumber == 1)
                                 {
-                                    if(firstPointInElement)
+                                    if (firstPointInElement)
                                     {
                                         Point absCoordinates = new Point(arrowPoints.Last().X - arrowPoints[arrowPoints.Count() - 2].X, arrowPoints.Last().Y - arrowPoints[arrowPoints.Count() - 2].Y);
                                         double angle = Math.Atan2(absCoordinates.Y, absCoordinates.X) * 180.0 / Math.PI;
@@ -187,11 +209,11 @@ namespace Edytor_graficzny.Src
                                         else if (angle >= 135 || angle < -135) pointFirst = new Point(gems[gemNumb].ElementStartingLocation.X, gems[gemNumb].ElementStartingLocation.Y + gems[gemNumb].ElementHeight / 2);
                                         else if (angle >= -135 && angle < -45) pointFirst = new Point(gems[gemNumb].ElementStartingLocation.X + gems[gemNumb].ElementWidth / 2, gems[gemNumb].ElementStartingLocation.Y);
                                     }
-                                    else 
+                                    else
                                     {
-                                        pointFirst.X = Convert.ToDouble(regex.Replace(parts[i-3].Replace('.', ','), "")) * gridItemsPerCM;
-                                        pointFirst.Y = Convert.ToDouble(regex.Replace(parts[i -2].Replace('.', ','), "")) * -gridItemsPerCM;
-                                        
+                                        pointFirst.X = Convert.ToDouble(regex.Replace(parts[i - 3].Replace('.', ','), "")) * gridItemsPerCM;
+                                        pointFirst.Y = Convert.ToDouble(regex.Replace(parts[i - 2].Replace('.', ','), "")) * -gridItemsPerCM;
+
                                     }
                                     correctArrowPoints.Add(pointFirst);
                                 }
@@ -207,7 +229,7 @@ namespace Edytor_graficzny.Src
                                     else if (angle >= 45 && angle < 135) pointNext = new Point(gems[j].ElementStartingLocation.X + gems[j].ElementWidth / 2, gems[j].ElementStartingLocation.Y);
                                     else if (angle >= 135 || angle < -135) pointNext = new Point(gems[j].ElementStartingLocation.X + gems[j].ElementWidth, gems[j].ElementStartingLocation.Y + gems[j].ElementHeight / 2);
                                     else if (angle >= -135 && angle < -45) pointNext = new Point(gems[j].ElementStartingLocation.X + gems[j].ElementWidth / 2, gems[j].ElementStartingLocation.Y + gems[j].ElementHeight);
-                                    
+
                                     correctArrowPoints.Add(pointNext);
                                 }
 
@@ -220,7 +242,7 @@ namespace Edytor_graficzny.Src
                         if (!pointConnected)
                         {
                             pointNext.X = Convert.ToDouble(regex.Replace(parts[i].Replace('.', ','), "")) * gridItemsPerCM;
-                            pointNext.Y = Convert.ToDouble(regex.Replace(parts[i+1].Replace('.', ','), "")) * -gridItemsPerCM;
+                            pointNext.Y = Convert.ToDouble(regex.Replace(parts[i + 1].Replace('.', ','), "")) * -gridItemsPerCM;
                             arrowPoints.Add(pointNext);
 
                             if (iteratrionNumber == 1)
@@ -242,7 +264,7 @@ namespace Edytor_graficzny.Src
                                     pointFirst.Y = Convert.ToDouble(regex.Replace(parts[i + 1].Replace('.', ','), "")) * -gridItemsPerCM;
 
                                 }
-                                
+
                             }
                             correctArrowPoints.Add(pointNext);
                             i += 2;
@@ -250,7 +272,7 @@ namespace Edytor_graficzny.Src
                         }
                     }
 
-                    arrows.Add(new ArrowsModel(correctArrowPoints, "Arrow"));
+                    arrows.Add(new ArrowsModel(correctArrowPoints, arrowType));
                 }
             }
         }
@@ -265,7 +287,7 @@ namespace Edytor_graficzny.Src
             fullTextList.AddRange(startText);
 
             #region \\tikzstyle{startstop} = [rectangle, rounded corners, minimum width = 3cm, minimum height = 1cm, text centered, draw = black, fill = red!30]");
-            
+
             List<string> partialDeclarations = new List<string>();
             List<string> declarations = new List<string>();
             List<int> objectToDeclarationDependency = new List<int>();
@@ -319,7 +341,7 @@ namespace Edytor_graficzny.Src
                     tempDeclaration += partialDeclarations.Count() + tempDeclarationEnd;
                     partialDeclarations.Add(tempDeclarationEnd);
                     declarations.Add(tempDeclaration);
-                    objectToDeclarationDependency.Add(partialDeclarations.Count() - 1); 
+                    objectToDeclarationDependency.Add(partialDeclarations.Count() - 1);
                 }
                 else
                 {
@@ -347,9 +369,9 @@ namespace Edytor_graficzny.Src
 
                 fullTextList.Add("\\node (Element"
                     + Convert.ToString(gems[i].ElementId) + ") ["
-                    + gems[i].ElementType + Convert.ToString(objectToDeclarationDependency[i]) + ", xshift=" 
-                    + locationX + "cm, yshift=" 
-                    + locationY + "cm] {" 
+                    + gems[i].ElementType + Convert.ToString(objectToDeclarationDependency[i]) + ", xshift="
+                    + locationX + "cm, yshift="
+                    + locationY + "cm] {"
                     + gems[i].ElementName + "};");
             }
             #endregion
@@ -359,7 +381,9 @@ namespace Edytor_graficzny.Src
             #region \draw [->] (2cm,-1.5cm) -- (2cm,-2.5cm);
             foreach (ArrowsModel _arrow in arrows)
             {
-                string textList = "\\draw [->] (";
+                string textList = "\\draw [->";
+                if (_arrow.arrowType == "Dashed Line") textList += ", dashed] (";
+                else textList += "] (";
                 foreach (Point _point in _arrow.points)
                 {
                     bool pointConnected = false;
@@ -399,6 +423,69 @@ namespace Edytor_graficzny.Src
             {
                 File.WriteAllLines(saveFileDialog.FileName, fullTextList);
             }
+        }
+
+        public void OpenConfiguration()
+        {
+            if (File.Exists("Config.txt"))
+            {
+                TextReader textReader = new StreamReader("Config.txt");
+
+                width = Convert.ToDouble(textReader.ReadLine());
+                height = Convert.ToDouble(textReader.ReadLine());
+                scale = Convert.ToDouble(textReader.ReadLine());
+                gridItemsPerCM = Convert.ToDouble(textReader.ReadLine());
+
+                for (int i = 0; i < 12; i++)
+                {
+                    customButtonsColors[i].A = 255;
+                    customButtonsColors[i].R = Convert.ToByte(textReader.ReadLine());
+                    customButtonsColors[i].G = Convert.ToByte(textReader.ReadLine());
+                    customButtonsColors[i].B = Convert.ToByte(textReader.ReadLine());
+                }
+                for (int i = 0; i < 4; i++)
+                {
+                    toolColor[i].A = 255;
+                    toolColor[i].R = Convert.ToByte(textReader.ReadLine());
+                    toolColor[i].G = Convert.ToByte(textReader.ReadLine());
+                    toolColor[i].B = Convert.ToByte(textReader.ReadLine());
+                }
+
+                textReader.Close();
+            }
+            else
+            {
+                toolColor[0] = customButtonsColors[8] = Color.FromArgb(255, 255, 179, 178);
+                toolColor[1] = customButtonsColors[9] = Color.FromArgb(255, 175, 179, 255);
+                toolColor[2] = customButtonsColors[10] = Color.FromArgb(255, 255, 216, 176);
+                toolColor[3] = customButtonsColors[11] = Color.FromArgb(255, 179, 255, 175);
+            }
+        }
+
+        public void SaveConfiguration()
+        {
+            TextWriter textWriter = new StreamWriter("Config.txt");
+
+            textWriter.WriteLine(width);
+            textWriter.WriteLine(height);
+            textWriter.WriteLine(scale);
+            textWriter.WriteLine(gridItemsPerCM);
+
+            for(int i = 0; i<12;i++)
+            {
+                textWriter.WriteLine(customButtonsColors[i].R);
+                textWriter.WriteLine(customButtonsColors[i].G);
+                textWriter.WriteLine(customButtonsColors[i].B);
+            }
+
+            for (int i = 0; i < 4; i++)
+            {
+                textWriter.WriteLine(toolColor[i].R);
+                textWriter.WriteLine(toolColor[i].G);
+                textWriter.WriteLine(toolColor[i].B);
+            }
+
+            textWriter.Close();
         }
     }
 }

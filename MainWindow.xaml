@@ -55,11 +55,15 @@
                 <MenuItem Header="_Open" Click="MenuItem_File_OpenClick" />
                 <MenuItem Header="_Save" Click="MenuItem_File_SaveClick" />
                 <Separator />
+                <MenuItem Header="Load Configuration" Click="MenuItem_File_OpenConfiguration" />
+                <MenuItem Header="Save Configuration" Click="MenuItem_File_SaveConfiguration" />
+                <Separator />
                 <MenuItem Header="_Exit" />
             </MenuItem>
             <MenuItem Header="Sandbox" Click="MenuItem_Sandbox_Click"></MenuItem>
             <MenuItem Header="Ribbon" Click="MenuItem_Ribbon_Click"></MenuItem>
             <MenuItem Header="_Undo" Click="MenuItem_Undo_Click"></MenuItem>
+            <MenuItem Header="_Redo" Click="MenuItem_Redo_Click"></MenuItem>
             <MenuItem Header="_NewTestLine" Click="MenuItem_btnNewLineTest_Click"></MenuItem>
             <MenuItem Header="_Test" Click="MenuItem_btnTest_Click"></MenuItem>
         </Menu>
@@ -91,8 +95,7 @@
                 <StackPanel>
                     <Button Name="btnSolidLine" Content="Solid Line" Click="btnSolidLine_Click"></Button>
                     <Button Name="btnDashedLine" Content="Dashed Line" Click="btnDashedLine_Click"></Button>
-                    <Button Name="btnDottedLine" Content="Dotted Line" Click="btnDottedLine_Click"></Button>
-                    <Button Name="btnFinishArrow" Content="Finish Arrow" Click="btnFinishArrow_Click"></Button>
+                    <Button Name="btnFinishArrow" Margin="0,22,0,0" Content="Finish Arrow" Click="btnFinishArrow_Click"></Button>
                 </StackPanel>
 
 
@@ -121,31 +124,66 @@
                 Grid.Column="2"
                 Grid.Row="0" 
                 Margin="5">
-                <StackPanel Orientation="Horizontal">
-                    <Button Name="btnColorBlack" Width="20" Height="20" Click="btnColorBlack_Click">
-                        <Button.Background>
-                            <SolidColorBrush Color="Black"></SolidColorBrush>
-                        </Button.Background>
-                    </Button>
-                    <Button Name="btnColorRed" Width="20" Height="20" Click="btnColorRed_Click">
-                        <Button.Background>
-                            <ImageBrush ImageSource="/Res/Images/Red.png"/>
-                        </Button.Background>
-                    </Button>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <Button Name="btnColorGreen" Width="20" Height="20" Click="btnColorGreen_Click">
-                        <Button.Background>
-                            <ImageBrush ImageSource="/Res/Images/Green.png"/>
-                        </Button.Background>
-                    </Button>
-                    <Button Name="btnColorBlue" Width="20" Height="20" Click="btnColorBlue_Click">
-                        <Button.Background>
-                            <ImageBrush ImageSource="/Res/Images/Blue.png"/>
-                        </Button.Background>
-                    </Button>
-                </StackPanel>
+                <Grid Margin="5" Background="#FFE6E6E6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="auto" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Name="btnColorRow1Column1" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow1Column2" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow1Column3" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow1Column4" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow1Column5" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow1Column6" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow1Column7" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow1Column8" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow1Column9" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow1Column10" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow1Column11" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow1Column12" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Name="btnColorRow2Column1" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow2Column2" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow2Column3" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow2Column4" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow2Column5" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow2Column6" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow2Column7" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow2Column8" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow2Column9" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow2Column10" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow2Column11" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow2Column12" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,3">
+                            <Button Name="btnColorRow3Column1" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow3Column2" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow3Column3" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow3Column4" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow3Column5" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow3Column6" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow3Column7" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow3Column8" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow3Column9" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow3Column10" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow3Column11" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                            <Button Name="btnColorRow3Column12" Margin="1" Width="20" Height="20" Click="btnColorAll_Click"></Button>
+                        </StackPanel>
+                        <Button Grid.Row="0" Name="btnColorPicker" Content="Color Picker" Click="btnColorPicker_Click"></Button>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1">
+                        <Button Name="btnColorActive" Margin="3,1" Width="68" Height="67" Click="btnColorAll_Click" />
+                    </StackPanel>
+                </Grid>
             </StackPanel>
+            
             <TextBlock
                 Grid.Column="2"
                 Grid.Row="1"
@@ -170,20 +208,17 @@
                 <DockPanel>
                     <TextBlock TextTrimming="WordEllipsis" Width="170">Element Width</TextBlock>
                     <TextBox x:Name="txtWidth" AcceptsReturn="True" Width="40" HorizontalAlignment="Right" />
-                    <TextBlock x:Name="txtCurrentWidth" TextTrimming="WordEllipsis" Width="120" Text="{Binding widthCurrent}"></TextBlock>
-                    <TextBlock Name="mouse_x" Width="100">Mouse position X</TextBlock>
+                    <TextBlock x:Name="txtCurrentWidth" TextTrimming="WordEllipsis" Width="240" Text="{Binding widthCurrent}"></TextBlock>
                 </DockPanel>
                 <DockPanel>
                     <TextBlock TextTrimming="WordEllipsis" Width="170">Element Height</TextBlock>
                     <TextBox  Name="txtHeight" AcceptsReturn="True" Width="40"/>
-                    <TextBlock x:Name="txtCurrentHeight" TextTrimming="WordEllipsis" Width="120" Text="{Binding heightCurrent}"></TextBlock>
-                    <TextBlock Name="mouse_y" Width="100">Mouse position Y</TextBlock>
+                    <TextBlock x:Name="txtCurrentHeight" TextTrimming="WordEllipsis" Width="240" Text="{Binding heightCurrent}"></TextBlock>
                 </DockPanel>
                 <DockPanel>
                     <TextBlock TextTrimming="WordEllipsis" Width="170">Element Scale</TextBlock>
                     <TextBox Name="txtScale" AcceptsReturn="True" Width="40"/>
-                    <TextBlock x:Name="txtCurrentScale" TextTrimming="WordEllipsis" Width="120" Text="{Binding scaleCurrent}"></TextBlock>
-                    <TextBlock Name="gemsNumber" Width="40"></TextBlock>
+                    <TextBlock x:Name="txtCurrentScale" TextTrimming="WordEllipsis" Width="240" Text="{Binding scaleCurrent}"></TextBlock>
                 </DockPanel>
                 <DockPanel>
                     <TextBlock TextTrimming="WordEllipsis" Width="170">Grid items per document width</TextBlock>
