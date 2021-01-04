@@ -11,9 +11,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-//…more using statements
-
-
 namespace Edytor_graficzny
 {
     public partial class MainWindow : Window
@@ -46,7 +43,6 @@ namespace Edytor_graficzny
         private List<int> redoList = new List<int>();
         private List<GraphicElementModel> redoGEM = new List<GraphicElementModel>();
         private List<ArrowsModel> redoArrow = new List<ArrowsModel>();
-
 
         public MainWindow()
         {
@@ -89,8 +85,6 @@ namespace Edytor_graficzny
             btnColorRow2Column11.Background = new SolidColorBrush(buttonsColors[10, 1]);
             btnColorRow2Column12.Background = new SolidColorBrush(buttonsColors[11, 1]);
         }
-        private void btnColorRow3Column1_Click(object sender, RoutedEventArgs e) {}
-        private void btnColorRow3Column2_Click(object sender, RoutedEventArgs e) {}
 
         private void btnColorAll_Click(object sender, RoutedEventArgs e) 
         {
@@ -136,50 +130,31 @@ namespace Edytor_graficzny
         }
         #endregion
 
-        private void MenuItem_File_NewClick(object sender, RoutedEventArgs e)
-        {
-            fileHandling.NewFile();
-        }
-
+        #region MenuButtons
         private void MenuItem_File_OpenClick(object sender, RoutedEventArgs e)
         {
             fileHandling.gems.Clear();
             fileHandling.OpenFile(fileHandling.gems);
             UpdateElements();
         }
-
         private void MenuItem_File_SaveClick(object sender, RoutedEventArgs e)
         {
             fileHandling.SaveFile();
         }
-
         private void MenuItem_File_OpenConfiguration(object sender, RoutedEventArgs e)
         {
             fileHandling.OpenConfiguration();
             UpdateElements();
         }
-
         private void MenuItem_File_SaveConfiguration(object sender, RoutedEventArgs e)
         {
             fileHandling.SaveConfiguration();
         }
-
-        private void MenuItem_Sandbox_Click(object sender, RoutedEventArgs e)
+        private void MenuItem_File_ExitClick(object sender, RoutedEventArgs e)
         {
-            Sandbox s = new Sandbox();
-            s.Top = 50;
-            s.Left = 50;
-            s.Show();
+            fileHandling.SaveConfiguration();
+            Application.Current.Shutdown();
         }
-
-        private void MenuItem_Ribbon_Click(object sender, RoutedEventArgs e)
-        {
-            Ribbon r = new Ribbon();
-            r.Top = 50;
-            r.Left = 50;
-            r.Show();
-        }
-
         private void MenuItem_Undo_Click(object sender, RoutedEventArgs e)
         {
             if (undoList.Any())
@@ -199,7 +174,6 @@ namespace Edytor_graficzny
             }
             UpdateElements();          
         }
-
         private void MenuItem_Redo_Click(object sender, RoutedEventArgs e)
         {
             if (redoList.Any())
@@ -219,22 +193,6 @@ namespace Edytor_graficzny
             }
             UpdateElements();
         }
-
-        private void MenuItem_btnNewLineTest_Click(object sender, RoutedEventArgs e)
-        {
-            Line myLine = new Line();
-            myLine.Stroke = Brushes.LightSteelBlue;
-            myLine.X1 = 1 + iter * 50;
-            myLine.X2 = 50 + iter * 50;
-            myLine.Y1 = 1 + iter * 50;
-            myLine.Y2 = 50 + iter * 50;
-            myLine.HorizontalAlignment = HorizontalAlignment.Left;
-            myLine.VerticalAlignment = VerticalAlignment.Center;
-            myLine.StrokeThickness = 5;
-            DrawBoard.Children.Add(myLine);
-            iter++;
-        }
-
         private void MenuItem_btnTest_Click(object sender, RoutedEventArgs e)
         {
             isGridActive = true;
@@ -270,7 +228,9 @@ namespace Edytor_graficzny
 
             UpdateElements();
         }
+        #endregion
 
+        #region MouseButtonsAndMove
         private void DrawBoard_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             pntStart = e.GetPosition(DrawBoard);
@@ -293,6 +253,7 @@ namespace Edytor_graficzny
             pntEnd = e.GetPosition(DrawBoard);
             Drawnado();
         }
+        #endregion
 
         #region Tools buttons handling
         private void btnStartStop_Click(object sender, RoutedEventArgs e)
@@ -341,11 +302,6 @@ namespace Edytor_graficzny
             ButtonControll(sender.ToString());
             btnFinishArrow.IsEnabled = false;
         }
-        private void btnEllipse_Click(object sender, RoutedEventArgs e)
-        {
-            ButtonControll(sender.ToString());
-            btnEllipse.IsEnabled = false;
-        }
 
         private void ButtonControll(string buttonName)
         {
@@ -355,15 +311,16 @@ namespace Edytor_graficzny
             btnDecision.IsEnabled = true;
             btnSolidLine.IsEnabled = true;
             btnDashedLine.IsEnabled = true;
-            btnEllipse.IsEnabled = true;
 
+            bool isPreviousLine = false;
+            if (drawType == "Solid Line" || drawType == "Dashed Line") isPreviousLine = true;
             buttonName.Trim();
             string[] parts = buttonName.Split(":".ToCharArray());
 
             drawType = parts[1].Trim();
             currentTool.Text = "Current tool: " + drawType;
 
-            if (drawType != "Solid Line" && drawType != "Dashed Line") ArrowCreation();
+            if (drawType != "Solid Line" && drawType != "Dashed Line" && isPreviousLine) ArrowCreation();
         }
         #endregion
             
@@ -444,6 +401,10 @@ namespace Edytor_graficzny
             fileHandling.gems.Clear();
             fileHandling.arrows.Clear();
             arrowPoints.Clear();
+            undoList.Clear();
+            redoList.Clear();
+            redoGEM.Clear();
+            redoArrow.Clear();
             UpdateElements();
         }
 
@@ -573,7 +534,7 @@ namespace Edytor_graficzny
                     #region Saving new elements
                     if (drawType != "Solid Line" && drawType != "Dashed Line")
                     {
-                        GraphicElementModel element = new GraphicElementModel(fileHandling.gems.Count, drawType, "Test", startPoint, fileHandling.width, fileHandling.height, color, 2);    //TODO: stroke
+                        GraphicElementModel element = new GraphicElementModel(fileHandling.gems.Count, drawType, "Text", startPoint, fileHandling.width, fileHandling.height, color, 2);    //TODO: stroke
                         fileHandling.gems.Add(element);
                         undoList.Add(0);
                         redoList.Clear();

@@ -51,21 +51,17 @@
 
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_File">
-                <MenuItem Header="_New" Click="MenuItem_File_NewClick"/>
                 <MenuItem Header="_Open" Click="MenuItem_File_OpenClick" />
                 <MenuItem Header="_Save" Click="MenuItem_File_SaveClick" />
                 <Separator />
                 <MenuItem Header="Load Configuration" Click="MenuItem_File_OpenConfiguration" />
                 <MenuItem Header="Save Configuration" Click="MenuItem_File_SaveConfiguration" />
                 <Separator />
-                <MenuItem Header="_Exit" />
+                <MenuItem Header="_Exit" Click="MenuItem_File_ExitClick" />
             </MenuItem>
-            <MenuItem Header="Sandbox" Click="MenuItem_Sandbox_Click"></MenuItem>
-            <MenuItem Header="Ribbon" Click="MenuItem_Ribbon_Click"></MenuItem>
             <MenuItem Header="_Undo" Click="MenuItem_Undo_Click"></MenuItem>
             <MenuItem Header="_Redo" Click="MenuItem_Redo_Click"></MenuItem>
-            <MenuItem Header="_NewTestLine" Click="MenuItem_btnNewLineTest_Click"></MenuItem>
-            <MenuItem Header="_Test" Click="MenuItem_btnTest_Click"></MenuItem>
+            <MenuItem Header="_Example" Click="MenuItem_btnTest_Click"></MenuItem>
         </Menu>
 
         <Grid DockPanel.Dock="Top" Margin="5" Background="#FFE6E6E6">
@@ -229,7 +225,6 @@
                     <Button x:Name="btnConfirm" Content="Confirm" Click="btnConfirm_Click"></Button>
                     <Button x:Name="btnGrid" Content="Show Grid" Click="btnGrid_Click" ></Button>
                     <Button x:Name="btnClear" Content="Clear Canvas" Click="btnClear_Click" ></Button>
-                    <Button x:Name="btnEllipse" Content="Ellipse" Click="btnEllipse_Click" ></Button>
                 </StackPanel>
                 
             </StackPanel>

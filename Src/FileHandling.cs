@@ -15,7 +15,6 @@ namespace Edytor_graficzny.Src
 {
     class FileHandling
     {
-        private string fileName = @"D:\temp\test.tex";
         private string tempTemplate = @"D:\Programowanie\Visual Studio C# WPF\Edytor graficzny\Res\Text\StartText.txt";
         public List<GraphicElementModel> gems = new List<GraphicElementModel>();
         public List<GraphicElementModel> gemsDeclarations = new List<GraphicElementModel>();
@@ -38,52 +37,6 @@ namespace Edytor_graficzny.Src
             }
         }
 
-        public void NewFile()
-        {
-            try
-            {
-                if (File.Exists(fileName)) File.Delete(fileName);
-
-                // WRITE
-                using (FileStream fs = File.Create(fileName))
-                {
-                    Byte[] title = new UTF8Encoding(true).GetBytes("New Text File");
-                    fs.Write(title, 0, title.Length);
-                    byte[] author = new UTF8Encoding(true).GetBytes("TEst");
-                    fs.Write(author, 0, author.Length);
-                }
-
-                // READ    
-                using (StreamReader sr = File.OpenText(fileName))
-                {
-                    string s = "";
-                    while ((s = sr.ReadLine()) != null)
-                    {
-                        Console.WriteLine(s);
-                    }
-                }
-
-                using (FileStream fs = File.Create(fileName))
-                {
-                    using (StreamReader sr = File.OpenText(tempTemplate))
-                    {
-                        string s = "";
-                        while ((s = sr.ReadLine()) != null)
-                        {
-                            byte[] line = new UTF8Encoding(true).GetBytes(s);
-                            fs.Write(line, 0, line.Length);
-                            byte[] newLine = new UTF8Encoding(true).GetBytes("\n");
-                            fs.Write(newLine, 0, newLine.Length);
-                        }
-                    }
-                }
-
-            }
-            catch (Exception Ex)
-            {
-                Console.WriteLine(Ex.ToString());
-            }
-        }
         public void OpenFile(List<GraphicElementModel> graphicElementsModel)
         {
             string[] test = File.ReadAllLines(tempTemplate);
