@@ -91,7 +91,7 @@
                 <StackPanel>
                     <Button Name="btnSolidLine" Content="Solid Line" Click="btnSolidLine_Click"></Button>
                     <Button Name="btnDashedLine" Content="Dashed Line" Click="btnDashedLine_Click"></Button>
-                    <Button Name="btnFinishArrow" Margin="0,22,0,0" Content="Finish Arrow" Click="btnFinishArrow_Click"></Button>
+                    <Button Name="btnFinish" Margin="0,22,0,0" Content="Finish" Click="btnFinish_Click"></Button>
                 </StackPanel>
 
 
@@ -221,10 +221,16 @@
                     <TextBox Name="txtGridItems" AcceptsReturn="True" Width="40"/>
                     <TextBlock x:Name="txtCurrentGridItems" TextTrimming="WordEllipsis" Width="240" Text="{Binding gridItemsCurrent}"></TextBlock>
                 </DockPanel>
+                <DockPanel>
+                    <TextBlock TextTrimming="WordEllipsis" Width="170">Application font size</TextBlock>
+                    <TextBox Name="txtFontSize" AcceptsReturn="True" Width="40"/>
+                    <TextBlock x:Name="txtCurrentFontSize" TextTrimming="WordEllipsis" Width="240" Text="{Binding fontSizeCurrent}"></TextBlock>
+                </DockPanel>
                 <StackPanel Orientation="Horizontal">
                     <Button x:Name="btnConfirm" Content="Confirm" Click="btnConfirm_Click"></Button>
                     <Button x:Name="btnGrid" Content="Show Grid" Click="btnGrid_Click" ></Button>
                     <Button x:Name="btnClear" Content="Clear Canvas" Click="btnClear_Click" ></Button>
+                    <Button x:Name="btnDynamicFontSize" Content="Dynamic Application Font Size" Click="btnDynamicFontSize_Click" ></Button>
                 </StackPanel>
                 
             </StackPanel>
@@ -249,6 +255,7 @@
                 MouseLeftButtonDown="DrawBoard_MouseLeftButtonDown"
                 MouseLeftButtonUp="DrawBoard_MouseLeftButtonUp"
                 MouseMove="DrawBoard_MouseMove"
+                MouseRightButtonDown="DrawBoard_MouseRightButtonDown"
                 ClipToBounds="True">
                 <!--Width="726"-->
         </Canvas>

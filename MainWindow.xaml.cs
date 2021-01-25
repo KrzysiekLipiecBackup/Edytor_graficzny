@@ -2,6 +2,7 @@
 using Edytor_graficzny.Src;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,13 +16,14 @@ namespace Edytor_graficzny
 {
     public partial class MainWindow : Window
     {
-        private int iter = 0;
         private Point pntStart;
         private Point pntEnd;
         private Color color = Color.FromRgb(255, 180, 180);
         private double cornerRoundness = 0.14;
         private bool isGridActive = false;
-        private string drawType = "Start/Stop";
+        DrawType previousDrawType = DrawType.StartStop;
+        DrawType currentDrawType = DrawType.StartStop;
+        //private string drawType = "Start/Stop";
         private string drawState = "OFF";   // First_ON, ON, First_OFF, OFF
         private readonly FileHandling fileHandling = new FileHandling();
         private List<Point> arrowPoints = new List<Point>();
@@ -38,22 +40,24 @@ namespace Edytor_graficzny
                                             { Color.FromRgb(143, 0, 214), Color.FromRgb(199, 127, 234) },
                                             { Color.FromRgb(230, 0, 172), Color.FromRgb(242, 127, 213) } };
         private int customColorsCounter = 0;
-        private string arrowType;
+        //private string arrowType;
         private List<int> undoList = new List<int>();   //0 - element; 1 - arrow
         private List<int> redoList = new List<int>();
         private List<GraphicElementModel> redoGEM = new List<GraphicElementModel>();
         private List<ArrowsModel> redoArrow = new List<ArrowsModel>();
+        private bool isDynamicFontActive = true;
+        private int fontSize = 12;
 
         public MainWindow()
         {
             InitializeComponent();
-            currentTool.Text = "Current tool: " + drawType;
+            currentTool.Text = "Current tool: " + currentDrawType;
             btnStartStop.IsEnabled = false;
-            btnFinishArrow.IsEnabled = false;
+            btnFinish.IsEnabled = false;
 
             fileHandling.OpenConfiguration();
             ColorTopRow();
-            UpdateElements();
+            UpdateElements(true);
         }
 
         #region ColorButtons
@@ -92,23 +96,23 @@ namespace Edytor_graficzny
             string[] parts = test.Split("wCn".ToCharArray());
             if (Convert.ToInt32(parts[3]) <= 2) color = buttonsColors[Convert.ToInt32(parts[5]) - 1, Convert.ToInt32(parts[3]) - 1];
             else color = fileHandling.customButtonsColors[Convert.ToInt32(parts[5]) - 1];
-            switch (drawType)
+            switch (currentDrawType)
             {
-                case "Start/Stop":
+                case DrawType.StartStop:
                     fileHandling.toolColor[0] = color;
                     break;
-                case "Input/Output":
+                case DrawType.InputOutput:
                     fileHandling.toolColor[1] = color;
                     break;
-                case "Process":
+                case DrawType.Process:
                     fileHandling.toolColor[2] = color;
                     break;
-                case "Decision":
+                case DrawType.Decision:
                     fileHandling.toolColor[3] = color;
                     break;
             }
             btnColorActive.Background = new SolidColorBrush(color);
-            UpdateElements();
+            UpdateElements(true);
         }
 
         private void btnColorPicker_Click(object sender, RoutedEventArgs e)
@@ -126,7 +130,7 @@ namespace Edytor_graficzny
             fileHandling.customButtonsColors[customColorsCounter] = color;
             customColorsCounter++;
             if (customColorsCounter == 12) customColorsCounter = 0;
-            UpdateElements();
+            UpdateElements(true);
         }
         #endregion
 
@@ -135,7 +139,7 @@ namespace Edytor_graficzny
         {
             fileHandling.gems.Clear();
             fileHandling.OpenFile(fileHandling.gems);
-            UpdateElements();
+            UpdateElements(true);
         }
         private void MenuItem_File_SaveClick(object sender, RoutedEventArgs e)
         {
@@ -144,7 +148,7 @@ namespace Edytor_graficzny
         private void MenuItem_File_OpenConfiguration(object sender, RoutedEventArgs e)
         {
             fileHandling.OpenConfiguration();
-            UpdateElements();
+            UpdateElements(true);
         }
         private void MenuItem_File_SaveConfiguration(object sender, RoutedEventArgs e)
         {
@@ -172,7 +176,7 @@ namespace Edytor_graficzny
                 }
                 undoList.RemoveAt(undoList.Count - 1);
             }
-            UpdateElements();          
+            UpdateElements(true);
         }
         private void MenuItem_Redo_Click(object sender, RoutedEventArgs e)
         {
@@ -191,13 +195,13 @@ namespace Edytor_graficzny
                 }
                 redoList.RemoveAt(redoList.Count - 1);
             }
-            UpdateElements();
+            UpdateElements(true);
         }
         private void MenuItem_btnTest_Click(object sender, RoutedEventArgs e)
         {
             isGridActive = true;
-            GraphicElementModel testStartStop = new GraphicElementModel(0, "Start/Stop", "test", new Point(1, 1), 6, 2, fileHandling.toolColor[0], 1);
-            GraphicElementModel testIO = new GraphicElementModel(1, "Input/Output", "test", new Point(9, 1), 6, 2, fileHandling.toolColor[1], 1);
+            GraphicElementModel testStartStop = new GraphicElementModel(0, "StartStop", "test", new Point(1, 1), 6, 2, fileHandling.toolColor[0], 1);
+            GraphicElementModel testIO = new GraphicElementModel(1, "InputOutput", "test", new Point(9, 1), 6, 2, fileHandling.toolColor[1], 1);
             GraphicElementModel testProcess = new GraphicElementModel(2, "Process", "test", new Point(1, 5), 6, 2, fileHandling.toolColor[2], 1);
             GraphicElementModel testDecision = new GraphicElementModel(3, "Decision", "test", new Point(9, 5), 6, 2, fileHandling.toolColor[3], 1);
 
@@ -209,24 +213,24 @@ namespace Edytor_graficzny
             List<Point> testList = new List<Point>();
             testList.Add(new Point(4, 3));
             testList.Add(new Point(4, 5));
-            ArrowsModel testArrow = new ArrowsModel(testList, "Solid Line");
+            ArrowsModel testArrow = new ArrowsModel(testList, "SolidLine");
 
             List<Point> testList2 = new List<Point>();
             testList2.Add(new Point(12, 3));
             testList2.Add(new Point(12, 4));
             testList2.Add(new Point(4, 4));
-            ArrowsModel testArrow2 = new ArrowsModel(testList2, "Dashed Line");
+            ArrowsModel testArrow2 = new ArrowsModel(testList2, "DashedLine");
 
             List<Point> testList3 = new List<Point>();
             testList3.Add(new Point(12, 4));
             testList3.Add(new Point(12, 5));
-            ArrowsModel testArrow3 = new ArrowsModel(testList3, "Solid Line");
+            ArrowsModel testArrow3 = new ArrowsModel(testList3, "SolidLine");
 
             fileHandling.arrows.Add(testArrow2);
             fileHandling.arrows.Add(testArrow);
             fileHandling.arrows.Add(testArrow3);
 
-            UpdateElements();
+            UpdateElements(true);
         }
         #endregion
 
@@ -253,6 +257,54 @@ namespace Edytor_graficzny
             pntEnd = e.GetPosition(DrawBoard);
             Drawnado();
         }
+
+        private void DrawBoard_MouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            Point pt = e.GetPosition((UIElement)sender);
+            List<GraphicElementModel> reverseGems = fileHandling.gems;
+            reverseGems.Reverse();
+
+            foreach (var rG in reverseGems)
+            {
+                if (pt.X >= rG.ElementStartingLocation.X * fileHandling.scale && pt.X <= (rG.ElementStartingLocation.X + rG.ElementWidth) * fileHandling.scale)
+                {
+                    if (pt.Y >= rG.ElementStartingLocation.Y * fileHandling.scale && pt.Y <= (rG.ElementStartingLocation.Y + rG.ElementHeight) * fileHandling.scale)
+                    {
+                        Rectangle hitChecker = new Rectangle();
+                        hitChecker.Width = rG.ElementWidth * fileHandling.scale;
+                        hitChecker.Height = rG.ElementHeight * fileHandling.scale;
+                        hitChecker.Fill = Brushes.Black;
+                        hitChecker.Opacity = 0.2;
+                        Canvas.SetLeft(hitChecker, rG.ElementStartingLocation.X * fileHandling.scale);
+                        Canvas.SetTop(hitChecker, rG.ElementStartingLocation.Y * fileHandling.scale);
+                        DrawBoard.Children.Add(hitChecker);
+
+                        SelectedElement(rG.ElementStartingLocation, rG.ElementWidth, rG.ElementHeight);
+                        break;
+                    }
+                }
+            }
+        }
+
+        private void SelectedElement(Point point, double width, double height)
+        {
+            List<Rectangle> smallRectangles = new List<Rectangle>();
+            for (int i=0; i<9; i++)
+            {
+                if (i != 4)
+                {
+                    smallRectangles.Add(new Rectangle());
+                    smallRectangles.Last().Width = 6;
+                    smallRectangles.Last().Height = 6;
+                    smallRectangles.Last().Stroke = Brushes.Black;
+                    smallRectangles.Last().StrokeThickness = 1;
+                    smallRectangles.Last().Fill = Brushes.White;
+                    Canvas.SetLeft(smallRectangles.Last(), (point.X + width / 2 * (i % 3)) * fileHandling.scale - 3);
+                    Canvas.SetTop(smallRectangles.Last(), (point.Y + height / 2 * Convert.ToInt32(i / 3)) * fileHandling.scale - 3);
+                    DrawBoard.Children.Add(smallRectangles.Last());
+                }
+            }
+        }
         #endregion
 
         #region Tools buttons handling
@@ -261,46 +313,45 @@ namespace Edytor_graficzny
             color = fileHandling.toolColor[0];
             ButtonControll(sender.ToString());
             btnStartStop.IsEnabled = false;
-            UpdateElements();
+            UpdateElements(true);
         }
         private void btnIO_Click(object sender, RoutedEventArgs e)
         {
             color = fileHandling.toolColor[1];
             ButtonControll(sender.ToString());
             btnIO.IsEnabled = false;
-            UpdateElements();
+            UpdateElements(true);
         }
         private void btnProcess_Click(object sender, RoutedEventArgs e)
         {
             color = fileHandling.toolColor[2];
             ButtonControll(sender.ToString());
             btnProcess.IsEnabled = false;
-            UpdateElements();
+            UpdateElements(true);
         }
         private void btnDecision_Click(object sender, RoutedEventArgs e)
         {
             color = fileHandling.toolColor[3];
             ButtonControll(sender.ToString());
             btnDecision.IsEnabled = false;
-            UpdateElements();
+            UpdateElements(true);
         }
         private void btnSolidLine_Click(object sender, RoutedEventArgs e)
         {
             ButtonControll(sender.ToString());
             btnSolidLine.IsEnabled = false;
-            btnFinishArrow.IsEnabled = true;
+            btnFinish.IsEnabled = true;
         }
         private void btnDashedLine_Click(object sender, RoutedEventArgs e)
         {
             ButtonControll(sender.ToString());
             btnDashedLine.IsEnabled = false;
-            btnFinishArrow.IsEnabled = true;
+            btnFinish.IsEnabled = true;
         }
-        private void btnFinishArrow_Click(object sender, RoutedEventArgs e)
+        private void btnFinish_Click(object sender, RoutedEventArgs e)
         {
-            arrowType = drawType;
             ButtonControll(sender.ToString());
-            btnFinishArrow.IsEnabled = false;
+            btnFinish.IsEnabled = false;
         }
 
         private void ButtonControll(string buttonName)
@@ -311,19 +362,44 @@ namespace Edytor_graficzny
             btnDecision.IsEnabled = true;
             btnSolidLine.IsEnabled = true;
             btnDashedLine.IsEnabled = true;
+            previousDrawType = currentDrawType;
 
-            bool isPreviousLine = false;
-            if (drawType == "Solid Line" || drawType == "Dashed Line") isPreviousLine = true;
             buttonName.Trim();
             string[] parts = buttonName.Split(":".ToCharArray());
+            switch (parts[1].Trim())
+            {
+                case "Start/Stop":
+                    currentDrawType = DrawType.StartStop;
+                    break;
+                case "Input/Output":
+                    currentDrawType = DrawType.InputOutput;
+                    break;
+                case "Process":
+                    currentDrawType = DrawType.Process;
+                    break;
+                case "Decision":
+                    currentDrawType = DrawType.Decision;
+                    break;
+                case "Solid Line":
+                    currentDrawType = DrawType.SolidLine;
+                    break;
+                case "Dashed Line":
+                    currentDrawType = DrawType.DashedLine;
+                    break;
+                case "Finish":
+                    currentDrawType = DrawType.None;
+                    break;
+                default:
+                    currentDrawType = DrawType.None;
+                    break;
+            }
+            currentTool.Text = "Current tool: " + currentDrawType;
 
-            drawType = parts[1].Trim();
-            currentTool.Text = "Current tool: " + drawType;
-
-            if (drawType != "Solid Line" && drawType != "Dashed Line" && isPreviousLine) ArrowCreation();
+            if (currentDrawType != DrawType.SolidLine && currentDrawType != DrawType.DashedLine && (previousDrawType == DrawType.SolidLine || previousDrawType == DrawType.DashedLine)) ArrowCreation();
         }
         #endregion
-            
+
+        #region Others Buttons
         private void btnConfirm_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -331,7 +407,7 @@ namespace Edytor_graficzny
                 fileHandling.width = Convert.ToDouble(txtWidth.Text);
                 txtWidth.Text = "";
             }
-            catch {}
+            catch { }
 
             try
             {
@@ -349,19 +425,26 @@ namespace Edytor_graficzny
 
             try
             {
-                fileHandling.gridItemsPerCM = Convert.ToDouble(txtGridItems.Text)/12;
+                fileHandling.gridItemsPerCM = Convert.ToDouble(txtGridItems.Text) / 12;
                 txtCurrentGridItems.Text = "";
             }
             catch { }
 
-            UpdateElements();
+            try
+            {
+                fontSize = Convert.ToInt32(txtFontSize.Text);
+                txtCurrentFontSize.Text = "";
+            }
+            catch { }
+
+            UpdateElements(true);
         }
 
         #region Grid Drawing
         private void btnGrid_Click(object sender, RoutedEventArgs e)
         {
             isGridActive = !isGridActive;
-            UpdateElements();
+            UpdateElements(true);
         }
 
         private void GridDrawing()
@@ -405,9 +488,15 @@ namespace Edytor_graficzny
             redoList.Clear();
             redoGEM.Clear();
             redoArrow.Clear();
-            UpdateElements();
+            UpdateElements(true);
         }
 
+        private void btnDynamicFontSize_Click(object sender, RoutedEventArgs e)
+        {
+            isDynamicFontActive = !isDynamicFontActive;
+            UpdateElements(true);
+        }
+        #endregion
 
         private void Drawnado()
         {
@@ -424,7 +513,7 @@ namespace Edytor_graficzny
                 }
                 Color blueprintColor = Color.FromRgb(120, 120, 255);
 
-                if (drawType != "Solid Line" && drawType != "Dashed Line")
+                if (currentDrawType != DrawType.SolidLine && currentDrawType != DrawType.DashedLine)
                 {
                     startPoint = new Point(Convert.ToInt32(pntStart.X / fileHandling.scale - fileHandling.width / 2), Convert.ToInt32(pntStart.Y / fileHandling.scale - fileHandling.height / 2));
                     if (pntEnd != null) startPoint = new Point(Convert.ToInt32(pntEnd.X / fileHandling.scale - fileHandling.width / 2), Convert.ToInt32(pntEnd.Y / fileHandling.scale - fileHandling.height / 2));
@@ -434,15 +523,15 @@ namespace Edytor_graficzny
                     path.Stroke = new SolidColorBrush(blueprintColor);
                     path.StrokeThickness = 2;
 
-                    switch (drawType)
+                    switch (currentDrawType)
                     {
-                        case "Start/Stop":
+                        case DrawType.StartStop:
                             Rect myRect = new Rect(startPoint.X * fileHandling.scale, startPoint.Y * fileHandling.scale, fileHandling.width * fileHandling.scale, fileHandling.height * fileHandling.scale);
 
                             path.Data = new RectangleGeometry(myRect, cornerRoundness * fileHandling.scale * fileHandling.height, cornerRoundness * fileHandling.scale * fileHandling.height);
                             break;
 
-                        case "Input/Output":
+                        case DrawType.InputOutput:
                             PathFigure myPathFigure = new PathFigure();
                             myPathFigure.StartPoint = new Point(Convert.ToInt32(startPoint.X + (fileHandling.width / 7)) * fileHandling.scale, Convert.ToInt32(startPoint.Y) * fileHandling.scale);
                             myPathFigure.Segments.Add(
@@ -468,13 +557,13 @@ namespace Edytor_graficzny
 
                             break;
 
-                        case "Process":
+                        case DrawType.Process:
                             Rect myRect2 = new Rect(startPoint.X * fileHandling.scale, startPoint.Y * fileHandling.scale, fileHandling.width * fileHandling.scale, fileHandling.height * fileHandling.scale);
 
                             path.Data = new RectangleGeometry(myRect2);
                             break;
 
-                        case "Decision":
+                        case DrawType.Decision:
                             PathFigure myPathFigure2 = new PathFigure();
                             myPathFigure2.StartPoint = new Point(Convert.ToInt32(startPoint.X + (fileHandling.width / 2)) * fileHandling.scale, Convert.ToInt32(startPoint.Y) * fileHandling.scale);
                             myPathFigure2.Segments.Add(
@@ -507,7 +596,7 @@ namespace Edytor_graficzny
                 }
                 else
                 {
-                    btnFinishArrow.IsEnabled = true;
+                    btnFinish.IsEnabled = true;
                     if (!arrowPoints.Any()) startPoint = new Point(Convert.ToInt32(pntStart.X / fileHandling.scale) * fileHandling.scale, Convert.ToInt32(pntStart.Y / fileHandling.scale) * fileHandling.scale);
                     else startPoint = new Point(arrowPoints.Last().X * fileHandling.scale, arrowPoints.Last().Y * fileHandling.scale);
                     
@@ -521,7 +610,7 @@ namespace Edytor_graficzny
                     line.Y1 = startPoint.Y;
                     line.X2 = endPoint.X;
                     line.Y2 = endPoint.Y;
-                    if(drawType == "Dashed Line") line.StrokeDashArray = new DoubleCollection() { 2, 2 };
+                    if(currentDrawType == DrawType.DashedLine) line.StrokeDashArray = new DoubleCollection() { 2, 2 };
                     line.StrokeThickness = 2;
                     
                     DrawBoard.Children.Add(line);  
@@ -532,9 +621,9 @@ namespace Edytor_graficzny
                 else if (drawState == "First_OFF")
                 {
                     #region Saving new elements
-                    if (drawType != "Solid Line" && drawType != "Dashed Line")
+                    if (currentDrawType != DrawType.SolidLine && currentDrawType != DrawType.DashedLine)
                     {
-                        GraphicElementModel element = new GraphicElementModel(fileHandling.gems.Count, drawType, "Text", startPoint, fileHandling.width, fileHandling.height, color, 2);    //TODO: stroke
+                        GraphicElementModel element = new GraphicElementModel(fileHandling.gems.Count, currentDrawType.ToString(), "A bit longer text", startPoint, fileHandling.width, fileHandling.height, color, 2);    //TODO: stroke
                         fileHandling.gems.Add(element);
                         undoList.Add(0);
                         redoList.Clear();
@@ -548,7 +637,7 @@ namespace Edytor_graficzny
                     }
                     #endregion
 
-                    UpdateElements();
+                    UpdateElements(true);
 
                     drawState = "OFF";
                 }
@@ -558,9 +647,10 @@ namespace Edytor_graficzny
 
 
         #region Clear, then drawing grid -> elements -> arrows -> text
-        private void UpdateElements()
+        private void UpdateElements(bool textDrawing)
         {
             DrawBoard.Children.Clear();
+
             if (isGridActive) GridDrawing();
             foreach (GraphicElementModel gem in fileHandling.gems.ToList())
             {
@@ -568,16 +658,19 @@ namespace Edytor_graficzny
                 path.Stroke = Brushes.Black;
                 path.Fill = new SolidColorBrush(gem.ElementColor);
                 path.StrokeThickness = 2;
+                DrawType gemType = DrawType.StartStop;
+                //int marginX, marginY;
 
                 switch (gem.ElementType)
                 {
-                    case "Start/Stop":
+                    case "StartStop":
                         Rect myRect = new Rect(gem.ElementStartingLocation.X * fileHandling.scale, gem.ElementStartingLocation.Y * fileHandling.scale, gem.ElementWidth * fileHandling.scale, gem.ElementHeight * fileHandling.scale);
 
                         path.Data = new RectangleGeometry(myRect, cornerRoundness * fileHandling.scale * gem.ElementHeight, cornerRoundness * fileHandling.scale * gem.ElementHeight);
+                        gemType = DrawType.StartStop;
                         break;
 
-                    case "Input/Output":
+                    case "InputOutput":
                         PathFigure myPathFigure = new PathFigure();
                         myPathFigure.StartPoint = new Point(Convert.ToInt32(gem.ElementStartingLocation.X + (gem.ElementWidth / 7)) * fileHandling.scale, Convert.ToInt32(gem.ElementStartingLocation.Y) * fileHandling.scale);
                         myPathFigure.Segments.Add(
@@ -601,12 +694,14 @@ namespace Edytor_graficzny
                         myPathGeometry.Figures.Add(myPathFigure);
 
                         path.Data = myPathGeometry;
+                        gemType = DrawType.InputOutput;
                         break;
 
                     case "Process":
                         Rect myRect2 = new Rect(gem.ElementStartingLocation.X * fileHandling.scale, gem.ElementStartingLocation.Y * fileHandling.scale, gem.ElementWidth * fileHandling.scale, gem.ElementHeight * fileHandling.scale);
 
                         path.Data = new RectangleGeometry(myRect2);
+                        gemType = DrawType.Process;
                         break;
 
                     case "Decision":
@@ -633,10 +728,12 @@ namespace Edytor_graficzny
                         myPathGeometry2.Figures.Add(myPathFigure2);
 
                         path.Data = myPathGeometry2;
+                        gemType = DrawType.Decision;
                         break;
                 }
 
                 DrawBoard.Children.Add(path);
+                if(textDrawing) TXT(gem.ElementStartingLocation, gemType, gem.ElementWidth, gem.ElementHeight, gem.ElementName, Color.FromArgb(255, 0, 0, 0));
             }
 
             foreach (ArrowsModel arrowsModel in fileHandling.arrows.ToList())
@@ -657,7 +754,7 @@ namespace Edytor_graficzny
                 }
                 PathGeometry myPathGeometryLine = new PathGeometry();
                 myPathGeometryLine.Figures.Add(myPathFigureLine);
-                if (arrowsModel.arrowType == "Dashed Line") path.StrokeDashArray = new DoubleCollection() { 2, 2 };
+                if (arrowsModel.arrowType == "DashedLine") path.StrokeDashArray = new DoubleCollection() { 2, 2 };
                 path.Data = myPathGeometryLine;
 
                 DrawBoard.Children.Add(path);
@@ -707,16 +804,19 @@ namespace Edytor_graficzny
                 PathGeometry myPathGeometryLine = new PathGeometry();
                 myPathGeometryLine.Figures.Add(myPathFigureLine);
 
-                if (drawType == "Dashed Line") path.StrokeDashArray = new DoubleCollection() { 2, 2 };
+                if (currentDrawType == DrawType.DashedLine) path.StrokeDashArray = new DoubleCollection() { 2, 2 };
                 path.Data = myPathGeometryLine;
 
                 DrawBoard.Children.Add(path);
             }
 
+
             txtCurrentWidth.Text = "  Current width: " + fileHandling.width.ToString();
             txtCurrentHeight.Text = "  Current height: " + fileHandling.height.ToString();
             txtCurrentScale.Text = "  Current scale: " + fileHandling.scale.ToString();
             txtCurrentGridItems.Text = "  Current number: " + (fileHandling.gridItemsPerCM * 12).ToString() + "; each crate: " + 1 / fileHandling.gridItemsPerCM + "cm";
+            if (isDynamicFontActive) txtCurrentFontSize.Text = "  Dynamic font is Active";
+            else txtCurrentFontSize.Text = "  Current font: " + fontSize.ToString();
 
             btnColorRow3Column1.Background = new SolidColorBrush(fileHandling.customButtonsColors[0]);
             btnColorRow3Column2.Background = new SolidColorBrush(fileHandling.customButtonsColors[1]);
@@ -742,8 +842,8 @@ namespace Edytor_graficzny
             {
                 WHY_ARE_THIS_NEEDED.Add(_point);
             }
-            ArrowsModel element = new ArrowsModel(WHY_ARE_THIS_NEEDED, "Solid Line");
-            if (arrowType == "Dashed Line") element.arrowType = "Dashed Line";
+            ArrowsModel element = new ArrowsModel(WHY_ARE_THIS_NEEDED, "SolidLine");
+            if (previousDrawType == DrawType.DashedLine) element.arrowType = "DashedLine";
             fileHandling.arrows.Add(element);
 
             undoList.Add(1);
@@ -752,55 +852,84 @@ namespace Edytor_graficzny
             redoArrow.Clear();
 
             arrowPoints.Clear();
-            UpdateElements();
+            UpdateElements(true);
+        }
+
+        private void TXT(Point point, DrawType dt, double width, double height, string text, Color color)
+        {
+            TextBlock textBlock = new TextBlock();
+
+            textBlock.Foreground = new SolidColorBrush(color);
+            textBlock.TextWrapping = TextWrapping.WrapWithOverflow;
+            textBlock.TextAlignment = TextAlignment.Justify;
+            textBlock.Text = text;
+            int marginX, marginY;
+            switch(dt)
+            {
+                case DrawType.StartStop:
+                    marginX = 5;
+                    marginY = 1;
+                    break;
+                case DrawType.InputOutput:
+                    marginX = Convert.ToInt32(width * fileHandling.scale / 6);
+                    marginY = 1;
+                    break;
+                case DrawType.Process:
+                    marginX = 2;
+                    marginY = 1;
+                    break;
+                case DrawType.Decision:
+                    marginX = Convert.ToInt32(width * fileHandling.scale / 4);
+                    marginY = Convert.ToInt32(height * fileHandling.scale / 4);
+                    break;
+                default:
+                    marginX = 5;
+                    marginY = 1;
+                    break;
+            }
+            if(isDynamicFontActive)
+            {
+                try
+                {
+                    double maxHeight = height * fileHandling.scale - (marginY * 2);
+                    Size maxSize = new Size(width * fileHandling.scale - (marginX * 2), maxHeight * 2);
+
+
+                    for (int i = 50; i > 8; i--)
+                    {
+                        textBlock.FontSize = i;
+                        textBlock.Measure(maxSize);
+                        if (textBlock.DesiredSize.Height < maxHeight) break;
+                    }
+                    textBlock.Width = width * fileHandling.scale - (marginX * 2);
+                    textBlock.Height = height * fileHandling.scale - (marginY * 2);
+                }
+                catch
+                {
+                    textBlock.FontSize = 6;
+                }
+            }
+            else textBlock.FontSize = fontSize;
+
+            Canvas.SetLeft(textBlock, point.X * fileHandling.scale + marginX);
+            Canvas.SetTop(textBlock, point.Y * fileHandling.scale + marginY);
+            DrawBoard.Children.Add(textBlock);
+        }
+
+        private void AddToDrawboard(Path path)
+        {
+            DrawBoard.Children.Add(path);
         }
     }
 }
 
-
-//case "Solid Line":
-//    PathFigure myPathFigure3 = new PathFigure();
-//    myPathFigure3.StartPoint = new Point(Convert.ToInt32(startPoint.X + (fileHandling.width / 7)) * fileHandling.scale, Convert.ToInt32(startPoint.Y) * fileHandling.scale);
-//    myPathFigure3.Segments.Add(
-//        new LineSegment(
-//            new Point(Convert.ToInt32(startPoint.X + (fileHandling.width)) * fileHandling.scale, Convert.ToInt32(startPoint.Y) * fileHandling.scale),
-//            true /* IsStroked */ ));
-//    myPathFigure3.Segments.Add(
-//        new LineSegment(
-//            new Point(Convert.ToInt32(startPoint.X + (fileHandling.width / 7 * 6)) * fileHandling.scale, Convert.ToInt32(startPoint.Y + (fileHandling.height)) * fileHandling.scale),
-//            true /* IsStroked */ ));
-//    myPathFigure3.Segments.Add(
-//        new LineSegment(
-//            new Point(Convert.ToInt32(startPoint.X) * fileHandling.scale, Convert.ToInt32(startPoint.Y + (fileHandling.height)) * fileHandling.scale),
-//            true /* IsStroked */ ));
-//    myPathFigure3.Segments.Add(
-//        new LineSegment(
-//            new Point(Convert.ToInt32(startPoint.X + (fileHandling.width / 7)) * fileHandling.scale, Convert.ToInt32(startPoint.Y) * fileHandling.scale),
-//            true /* IsStroked */ ));
-
-//    PathGeometry myPathGeometry3 = new PathGeometry();
-//    myPathGeometry3.Figures.Add(myPathFigure3);
-
-//    path.Data = myPathGeometry3;
-//    break;
-
-//case "Ellipse":
-//    SolidColorBrush mySolidColorBrush = new SolidColorBrush
-//    {
-//        Color = Color.FromArgb(255, this.color.R, this.color.G, this.color.B)
-//    };
-
-//    Ellipse myEllipse = new Ellipse
-//    {
-//        Fill = mySolidColorBrush,
-//        StrokeThickness = 2,
-//        Stroke = Brushes.Black,
-//        Width = Math.Abs(pntStart.X - pntEnd.X),
-//        Height = Math.Abs(pntStart.Y - pntEnd.Y)
-//    };
-
-//    DrawBoard.Children.Add(myEllipse);
-
-//    Canvas.SetLeft(myEllipse, (pntStart.X < pntEnd.X) ? pntStart.X : pntEnd.X);
-//    Canvas.SetTop(myEllipse, (pntStart.Y < pntEnd.Y) ? pntStart.Y : pntEnd.Y);
-//    break;
+public enum DrawType
+{
+    StartStop,
+    InputOutput,
+    Process,
+    Decision,
+    SolidLine,
+    DashedLine,
+    None
+}

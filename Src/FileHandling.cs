@@ -69,7 +69,7 @@ namespace Edytor_graficzny.Src
                         if (_string.Contains("rounded corners"))
                         {
                             tabPos = new int[] { 6, 8, 16, 17, 18 };
-                            type = "Start/Stop";
+                            type = "StartStop";
                         }
                         else
                         {
@@ -80,7 +80,7 @@ namespace Edytor_graficzny.Src
                     else if (_string.Contains("trapezium"))
                     {
                         tabPos = new int[] { 9, 11, 19, 20, 21 };
-                        type = "Input/Output";
+                        type = "InputOutput";
                     }
 
                     else if (_string.Contains("diamond"))
@@ -124,7 +124,7 @@ namespace Edytor_graficzny.Src
                     int gemNumb = 0;
                     bool firstPointInElement = false;
                     bool dashed = false;
-                    string arrowType = "Solid Line";
+                    string arrowType = "SolidLine";
 
                     List<Point> arrowPoints = new List<Point>();
                     List<Point> correctArrowPoints = new List<Point>();
@@ -139,7 +139,7 @@ namespace Edytor_graficzny.Src
                         {
                             i++;
                             dashed = false;
-                            arrowType = "Dashed Line";
+                            arrowType = "DashedLine";
                         }
                         bool pointConnected = false;
                         for (int j = 0; j < nodeNames.Count(); j++) //      nodeNames[0] = Element0, nodeNames[1] = Element1
@@ -254,10 +254,10 @@ namespace Edytor_graficzny.Src
                 heightConverted = heightConverted.Replace(',', '.');
                 switch (gem.ElementType)
                 {
-                    case "Start/Stop":
+                    case "StartStop":
                         tempDeclarationEnd = "} = [rectangle, rounded corners, minimum width = ";
                         break;
-                    case "Input/Output":
+                    case "InputOutput":
                         tempDeclarationEnd = "} = [trapezium, trapezium left angle = 70, trapezium right angle = 110, minimum width = ";
                         break;
                     case "Process":
@@ -277,11 +277,11 @@ namespace Edytor_graficzny.Src
                 {
                     switch (gem.ElementType)
                     {
-                        case "Start/Stop":
-                            tempDeclaration = "\\tikzstyle{Start/Stop";
+                        case "StartStop":
+                            tempDeclaration = "\\tikzstyle{StartStop";
                             break;
-                        case "Input/Output":
-                            tempDeclaration = "\\tikzstyle{Input/Output";
+                        case "InputOutput":
+                            tempDeclaration = "\\tikzstyle{InputOutput";
                             break;
                         case "Process":
                             tempDeclaration = "\\tikzstyle{Process";
@@ -335,7 +335,7 @@ namespace Edytor_graficzny.Src
             foreach (ArrowsModel _arrow in arrows)
             {
                 string textList = "\\draw [->";
-                if (_arrow.arrowType == "Dashed Line") textList += ", dashed] (";
+                if (_arrow.arrowType == "DashedLine") textList += ", dashed] (";
                 else textList += "] (";
                 foreach (Point _point in _arrow.points)
                 {
