@@ -254,8 +254,9 @@
                 Background="#FFE6E6E6"
                 MouseLeftButtonDown="DrawBoard_MouseLeftButtonDown"
                 MouseLeftButtonUp="DrawBoard_MouseLeftButtonUp"
-                MouseMove="DrawBoard_MouseMove"
                 MouseRightButtonDown="DrawBoard_MouseRightButtonDown"
+                MouseRightButtonUp="DrawBoard_MouseRightButtonUp"
+                MouseMove="DrawBoard_MouseMove"
                 ClipToBounds="True">
                 <!--Width="726"-->
         </Canvas>

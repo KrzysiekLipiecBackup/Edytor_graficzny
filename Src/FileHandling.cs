@@ -20,9 +20,6 @@ namespace Edytor_graficzny.Src
         public List<GraphicElementModel> gemsDeclarations = new List<GraphicElementModel>();
         public List<ArrowsModel> arrows = new List<ArrowsModel>();
 
-        public double width = 6, height = 2;
-        public double scale = 25;
-        public double gridItemsPerCM = 2;
         public Color[] toolColor = new Color[4];
         public Color[] customButtonsColors = new Color[12];
 
@@ -98,7 +95,7 @@ namespace Edytor_graficzny.Src
                     color.G = Convert.ToByte(regex.Replace(parts[tabPos[3]], ""));
                     color.B = Convert.ToByte(regex.Replace(parts[tabPos[4]], ""));
 
-                    gemsDeclarations.Add(new GraphicElementModel(gemsDeclarations.Count(), type, name, width * gridItemsPerCM, height * gridItemsPerCM, color));
+                    gemsDeclarations.Add(new GraphicElementModel(gemsDeclarations.Count(), type, name, width * Variables.gridItemsPerCM, height * Variables.gridItemsPerCM, color));
                 }
                 else if (_string.Contains("\\node"))
                 {
@@ -110,8 +107,8 @@ namespace Edytor_graficzny.Src
                             string[] parts = _string.Split("()[=,{}]".ToCharArray());
                             nodeNames.Add(parts[1]);
 
-                            point.X = ((Convert.ToDouble(regex.Replace(parts[5].Replace('.', ','), "")) * gridItemsPerCM) - _gem.ElementWidth / 2);
-                            point.Y = ((Convert.ToDouble(regex.Replace(parts[7].Replace('.', ','), "")) * -gridItemsPerCM) - _gem.ElementHeight / 2);
+                            point.X = ((Convert.ToDouble(regex.Replace(parts[5].Replace('.', ','), "")) * Variables.gridItemsPerCM) - _gem.ElementWidth / 2);
+                            point.Y = ((Convert.ToDouble(regex.Replace(parts[7].Replace('.', ','), "")) * -Variables.gridItemsPerCM) - _gem.ElementHeight / 2);
                             name = parts[9];
 
                             gems.Add(new GraphicElementModel(gems.Count(), type, name, point, _gem.ElementWidth, _gem.ElementHeight, _gem.ElementColor, 1));
@@ -164,8 +161,8 @@ namespace Edytor_graficzny.Src
                                     }
                                     else
                                     {
-                                        pointFirst.X = Convert.ToDouble(regex.Replace(parts[i - 3].Replace('.', ','), "")) * gridItemsPerCM;
-                                        pointFirst.Y = Convert.ToDouble(regex.Replace(parts[i - 2].Replace('.', ','), "")) * -gridItemsPerCM;
+                                        pointFirst.X = Convert.ToDouble(regex.Replace(parts[i - 3].Replace('.', ','), "")) * Variables.gridItemsPerCM;
+                                        pointFirst.Y = Convert.ToDouble(regex.Replace(parts[i - 2].Replace('.', ','), "")) * -Variables.gridItemsPerCM;
 
                                     }
                                     correctArrowPoints.Add(pointFirst);
@@ -194,8 +191,8 @@ namespace Edytor_graficzny.Src
                         }
                         if (!pointConnected)
                         {
-                            pointNext.X = Convert.ToDouble(regex.Replace(parts[i].Replace('.', ','), "")) * gridItemsPerCM;
-                            pointNext.Y = Convert.ToDouble(regex.Replace(parts[i + 1].Replace('.', ','), "")) * -gridItemsPerCM;
+                            pointNext.X = Convert.ToDouble(regex.Replace(parts[i].Replace('.', ','), "")) * Variables.gridItemsPerCM;
+                            pointNext.Y = Convert.ToDouble(regex.Replace(parts[i + 1].Replace('.', ','), "")) * -Variables.gridItemsPerCM;
                             arrowPoints.Add(pointNext);
 
                             if (iteratrionNumber == 1)
@@ -213,8 +210,8 @@ namespace Edytor_graficzny.Src
                                 }
                                 else
                                 {
-                                    pointFirst.X = Convert.ToDouble(regex.Replace(parts[i].Replace('.', ','), "")) * gridItemsPerCM;
-                                    pointFirst.Y = Convert.ToDouble(regex.Replace(parts[i + 1].Replace('.', ','), "")) * -gridItemsPerCM;
+                                    pointFirst.X = Convert.ToDouble(regex.Replace(parts[i].Replace('.', ','), "")) * Variables.gridItemsPerCM;
+                                    pointFirst.Y = Convert.ToDouble(regex.Replace(parts[i + 1].Replace('.', ','), "")) * -Variables.gridItemsPerCM;
 
                                 }
 
@@ -248,9 +245,9 @@ namespace Edytor_graficzny.Src
             {
                 string tempDeclarationEnd = "", tempDeclaration = "";
 
-                string widthConverted = Convert.ToString(gem.ElementWidth / gridItemsPerCM);
+                string widthConverted = Convert.ToString(gem.ElementWidth / Variables.gridItemsPerCM);
                 widthConverted = widthConverted.Replace(',', '.');
-                string heightConverted = Convert.ToString(gem.ElementHeight / gridItemsPerCM);
+                string heightConverted = Convert.ToString(gem.ElementHeight / Variables.gridItemsPerCM);
                 heightConverted = heightConverted.Replace(',', '.');
                 switch (gem.ElementType)
                 {
@@ -315,9 +312,9 @@ namespace Edytor_graficzny.Src
             #region \node(start0)[startStop0, xshift = 1cm, yshift = -1cm] { Start};
             for (int i = 0; i < gems.Count(); i++)
             {
-                string locationX = Convert.ToString((gems[i].ElementStartingLocation.X + (gems[i].ElementWidth / 2)) / gridItemsPerCM);
+                string locationX = Convert.ToString((gems[i].ElementStartingLocation.X + (gems[i].ElementWidth / 2)) / Variables.gridItemsPerCM);
                 locationX = locationX.Replace(',', '.');
-                string locationY = Convert.ToString((gems[i].ElementStartingLocation.Y + (gems[i].ElementHeight / 2)) / gridItemsPerCM * -1);
+                string locationY = Convert.ToString((gems[i].ElementStartingLocation.Y + (gems[i].ElementHeight / 2)) / Variables.gridItemsPerCM * -1);
                 locationY = locationY.Replace(',', '.');
 
                 fullTextList.Add("\\node (Element"
@@ -353,8 +350,8 @@ namespace Edytor_graficzny.Src
                     if (pointConnected) textList += elementConnected + ")";
                     else
                     {
-                        string locationX = Convert.ToString(_point.X / gridItemsPerCM).Replace(',', '.');
-                        string locationY = Convert.ToString(_point.Y / gridItemsPerCM * -1).Replace(',', '.');
+                        string locationX = Convert.ToString(_point.X / Variables.gridItemsPerCM).Replace(',', '.');
+                        string locationY = Convert.ToString(_point.Y / Variables.gridItemsPerCM * -1).Replace(',', '.');
 
                         textList += locationX + "cm, "
                                   + locationY + "cm)";
@@ -384,10 +381,10 @@ namespace Edytor_graficzny.Src
             {
                 TextReader textReader = new StreamReader("Config.txt");
 
-                width = Convert.ToDouble(textReader.ReadLine());
-                height = Convert.ToDouble(textReader.ReadLine());
-                scale = Convert.ToDouble(textReader.ReadLine());
-                gridItemsPerCM = Convert.ToDouble(textReader.ReadLine());
+                Variables.width = Convert.ToDouble(textReader.ReadLine());
+                Variables.height = Convert.ToDouble(textReader.ReadLine());
+                Variables.scale = Convert.ToDouble(textReader.ReadLine());
+                Variables.gridItemsPerCM = Convert.ToDouble(textReader.ReadLine());
 
                 for (int i = 0; i < 12; i++)
                 {
@@ -419,10 +416,10 @@ namespace Edytor_graficzny.Src
         {
             TextWriter textWriter = new StreamWriter("Config.txt");
 
-            textWriter.WriteLine(width);
-            textWriter.WriteLine(height);
-            textWriter.WriteLine(scale);
-            textWriter.WriteLine(gridItemsPerCM);
+            textWriter.WriteLine(Variables.width);
+            textWriter.WriteLine(Variables.height);
+            textWriter.WriteLine(Variables.scale);
+            textWriter.WriteLine(Variables.gridItemsPerCM);
 
             for(int i = 0; i<12;i++)
             {
